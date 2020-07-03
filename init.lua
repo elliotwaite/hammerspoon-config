@@ -130,7 +130,6 @@ function tryToInitModState(pressedMods)
   -- before we start enabling hotkeys to ensure that our mode states
   -- table is correct. This is needed because this script may be
   -- initialized with mod keys already pressed.
-  print(pressedMods.alt or pressedMods.cmd or pressedMods.ctrl or pressedMods.shift)
   if not (pressedMods.alt or pressedMods.cmd or pressedMods.ctrl or pressedMods.shift) then
     for key_code, _ in pairs(KEY_CODE_TO_KEY_STR) do
       modStates[key_code] = false
@@ -174,6 +173,6 @@ davinciResolveWindowFilter:subscribe(hs.window.filter.windowUnfocused, function(
 end)
 
 -- Hot reload for debugging.
-hs.loadSpoon('ReloadConfiguration')
-spoon.ReloadConfiguration:start()
-hs.alert.show('Config reloaded')
+-- hs.loadSpoon('ReloadConfiguration')
+-- spoon.ReloadConfiguration:start()
+-- hs.alert.show('Config reloaded')
