@@ -26,6 +26,16 @@ KEY_CODE_TO_MOD_TYPE = {
   [56] = 'shift',
   [60] = 'shift',
 }
+KEY_CODE_TO_SIBLING_KEY_CODE = {
+  [58] = 61,
+  [61] = 58,
+  [55] = 54,
+  [54] = 55,
+  [59] = 62,
+  [62] = 59,
+  [56] = 60,
+  [60] = 56,
+}
 
 EXTERNAL_KEYBOARD_NAME = 'Advantage2 Keyboard'
 
@@ -66,7 +76,6 @@ KEYMAP = {
   {'leftCmd', 'u', 'alt', 'left'},
   {'leftCmd+leftShift', 'u', 'alt+shift', 'left'},
   {'leftCmd', 'i', nil, 'up'},
-  {'fn', 'a', nil, 'up'},
   {'leftCmd+leftShift', 'i', 'cmd+shift', 'up'},
   {'leftCmd+rightShift', 'i', 'shift', 'up'},
   {'leftCmd+leftShift+rightShift', 'i', 'shift', 'up'},
@@ -114,17 +123,18 @@ function updateEnabledHotkeys()
     end
   end
 
-  local hotkeyGroupKey = ''
+  local curModKeysStr = ''
   for _, keyCode in ipairs(ORDERED_KEY_CODES) do
     if modStates[keyCode] then
-      if hotkeyGroupKey ~= '' then
-        hotkeyGroupKey = hotkeyGroupKey .. '+'
+      if curModKeysStr ~= '' then
+        curModKeysStr = curModKeysStr .. '+'
       end
-      hotkeyGroupKey = hotkeyGroupKey .. KEY_CODE_TO_KEY_STR[keyCode]
+      curModKeysStr = curModKeysStr .. KEY_CODE_TO_KEY_STR[keyCode]
     end
   end
+  print(curModKeysStr)
 
-  curHotkeyGroup = hotkeyGroups[hotkeyGroupKey]
+  curHotkeyGroup = hotkeyGroups[curModKeysStr]
   if curHotkeyGroup ~= nil then
     for _, hotkey in ipairs(curHotkeyGroup) do
       hotkey:enable()
@@ -139,34 +149,42 @@ end
 
 modKeyWatcher = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, function(event)
   local keyCode = event:getKeyCode()
-    if modStates[keyCode] ~= nil then
-      if event:getFlags()[KEY_CODE_TO_MOD_TYPE[keyCode]] then
-        -- If a mod key of this type is pressed, we don't know if it is
-        -- the right or the left one, so we can't determine if this is a
-        -- key-up or key-down event, so we just toggle the `modState`
-        -- value corresponding to this key code.
-        modStates[keyCode] = not modStates[keyCode]
-      else
-        -- If no mod key of this type is pressed, we know that it is a
-        -- key-up event, so we set the `modState` value corresponding to
-        -- this key code to false.
-        modStates[keyCode] = false
-      end
-      updateEnabledHotkeys()
+  if modStates[keyCode] ~= nil then
+    if event:getFlags()[KEY_CODE_TO_MOD_TYPE[keyCode]] then
+      -- If a mod key of this type is pressed, we don't know if it is
+      -- the right or the left one, so we can't determine if this is a
+      -- key-up or key-down event, so we just toggle the `modState`
+      -- value corresponding to this key code.
+      modStates[keyCode] = not modStates[keyCode]
+    else
+      -- If no mod key of this type is pressed, we know that it is a
+      -- key-up event, so we set the `modState` value corresponding to
+      -- this key code to false. We also set the `modState` value
+      -- corresponding to its sibling key code (left/right) to false
+      -- to ensure that the state is correct in case in .
+      modStates[keyCode] = false
+      modStates[KEY_CODE_TO_SIBLING_KEY_CODE[keyCode]] = false
     end
+    updateEnabledHotkeys()
+  end
 end):start()
 
 
 -- Remap [`] -> [escape] and [cmd + `] -> [`], but only when my external
 -- keyboard is not connected.
-graveAccentHotkey = hs.hotkey.bind(nil, '`', function() hs.eventtap.keyStroke(nil, 'escape', 0) end)
-cmdGraveAccentHotkey = hs.hotkey.bind('cmd', '`', function() hs.eventtap.keyStrokes('`') end)
+graveAccentHotkey = hs.hotkey.new(nil, '`', function() hs.eventtap.keyStroke(nil, 'escape', 0) end)
+cmdGraveAccentHotkey = hs.hotkey.new('cmd', '`', function() hs.eventtap.keyStrokes('`') end)
+
+externalKeyboardIsConnected = false
 for _, device in pairs(hs.usb.attachedDevices()) do
   if device.productName == EXTERNAL_KEYBOARD_NAME then
-    graveAccentHotkey:disable()
-    cmdGraveAccentHotkey:disable()
+    externalKeyboardIsConnected = true
     break
   end
+end
+if not externalKeyboardIsConnected then
+  graveAccentHotkey:enable()
+  cmdGraveAccentHotkey:enable()
 end
 
 usbWatcher = hs.usb.watcher.new(function(event)
@@ -211,7 +229,7 @@ function disableChromeHotkeys()
   end
 end
 
-if hs.window.focusedWindow():application():name() == 'Google Chrome' then
+if hs.window.focusedWindow() and hs.window.focusedWindow():application():name() == 'Google Chrome' then
   enableChromeHotkeys()
 end
 
