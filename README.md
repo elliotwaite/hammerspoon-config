@@ -1,4 +1,4 @@
-# My Hammerspoon Configuration
+# My Hammerspoon Settings
 
 My Hammerspoon configuration file sets up the following rules. See my [init.lua](https://github.com/elliotwaite/hammerspoon-config/blob/master/init.lua)
 file for more details.
