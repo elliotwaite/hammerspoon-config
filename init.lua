@@ -1,10 +1,15 @@
--- A helper function for debuggins.
+-- A helper function for printing out the contents of a table.
 -- local inspect = require('inspect')
 -- function p(x)
---   print('Inspect:')
 --   print(inspect(x))
 -- end
 
+-- The name of my external keyboard. This is used below to make certain
+-- hotkeys only apply when my external keyboard is not connected.
+EXTERNAL_KEYBOARD_NAME = 'Advantage2 Keyboard'
+
+-- These constants are used in the code below to allow hotkeys to be
+-- assigned using side-specific modifier keys.
 ORDERED_KEY_CODES = {58, 61, 55, 54, 59, 62, 56, 60}
 KEY_CODE_TO_KEY_STR = {
   [58] = 'leftAlt',
@@ -37,16 +42,15 @@ KEY_CODE_TO_SIBLING_KEY_CODE = {
   [60] = 56,
 }
 
-EXTERNAL_KEYBOARD_NAME = 'Advantage2 Keyboard'
-
-
--- KEYMAP values format:
---     {fromMods, fromKey, toMods, toKey}
+-- SIDE_SPECIFIC_HOTKEYS:
+--     This table is used to setup my side-specific hotkeys, the format
+--     of each entry is: {fromMods, fromKey, toMods, toKey}
 --
 --     fromMods (string):
---         Any of the following strings, joined by plus sings ('+'). If
---         multiple are used, they must be in the same order as they
---         appear in this list:
+--         Any of the following strings, joined by plus signs ('+'). If
+--         multiple are used, they must be listed in the same order as
+--         they appear in this list (alphabetical by modifier name, and
+--         then left before right):
 --             leftAlt
 --             rightAlt
 --             leftCmd
@@ -57,12 +61,13 @@ EXTERNAL_KEYBOARD_NAME = 'Advantage2 Keyboard'
 --             rightSfhit
 --
 --     fromKey (string):
---         A string containing the name of a keyboard key (as found in
---         hs.keycodes.map (https://www.hammerspoon.org/docs/hs.keycodes.html#map)),
---         or a raw keycode number.
+--         Any single-character string, or the name of a keyboard key.
+--         The list keyboard key names can be found here:
+--         https://www.hammerspoon.org/docs/hs.keycodes.html#map
 --
 --     toMods (string):
---         Any of the following strings, joined by plus sings ('+'):
+--         Any of the following strings, joined by plus signs ('+').
+--         Unlike `fromMods`, the order of these does not matter:
 --             alt
 --             cmd
 --             ctrl
@@ -70,17 +75,17 @@ EXTERNAL_KEYBOARD_NAME = 'Advantage2 Keyboard'
 --             fn
 --
 --     toKey (string):
---         Same format as fromKey.
+--         Same format as `fromKey`.
 --
-KEYMAP = {
-  {'leftCmd', 'u', 'alt', 'left'},
-  {'leftCmd+leftShift', 'u', 'alt+shift', 'left'},
+SIDE_SPECIFIC_HOTKEYS = {
+  {'leftCmd', 'u', 'ctrl', 'left'},
+  {'leftCmd+leftShift', 'u', 'ctrl+shift', 'left'},
   {'leftCmd', 'i', nil, 'up'},
   {'leftCmd+leftShift', 'i', 'cmd+shift', 'up'},
   {'leftCmd+rightShift', 'i', 'shift', 'up'},
   {'leftCmd+leftShift+rightShift', 'i', 'shift', 'up'},
-  {'leftCmd', 'o', 'alt', 'right'},
-  {'leftCmd+leftShift', 'o', 'alt+shift', 'right'},
+  {'leftCmd', 'o', 'ctrl', 'right'},
+  {'leftCmd+leftShift', 'o', 'ctrl+shift', 'right'},
   {'leftCmd', 'h', 'cmd', 'left'},
   {'leftCmd+leftShift', 'h', 'cmd+shift', 'left'},
   {'leftCmd', 'j', nil, 'left'},
@@ -95,16 +100,10 @@ KEYMAP = {
   {'leftCmd+leftShift', ';', 'cmd+shift', 'right'},
   {'leftCmd', "'", 'cmd', 'right'},
   {'leftCmd+leftShift', "'", 'cmd+shift', 'right'},
-  {'leftCmd', 'm', nil, '['},
-  {'leftCmd+leftShift', 'm', 'shift', '['},
-  {'leftCmd', ',', 'shift', '9'},
-  {'leftCmd', '.', 'shift', '0'},
-  {'leftCmd', '/', nil, ']'},
-  {'leftCmd+leftShift', '/', 'shift', ']'},
 }
 
 hotkeyGroups = {}
-for _, hotkeyVals in ipairs(KEYMAP) do
+for _, hotkeyVals in ipairs(SIDE_SPECIFIC_HOTKEYS) do
   local fromMods, fromKey, toMods, toKey = table.unpack(hotkeyVals)
   local toKeyStroke = function()
     hs.eventtap.keyStroke(toMods, toKey, 0)
@@ -132,7 +131,6 @@ function updateEnabledHotkeys()
       curModKeysStr = curModKeysStr .. KEY_CODE_TO_KEY_STR[keyCode]
     end
   end
-  print(curModKeysStr)
 
   curHotkeyGroup = hotkeyGroups[curModKeysStr]
   if curHotkeyGroup ~= nil then
@@ -151,17 +149,22 @@ modKeyWatcher = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, function
   local keyCode = event:getKeyCode()
   if modStates[keyCode] ~= nil then
     if event:getFlags()[KEY_CODE_TO_MOD_TYPE[keyCode]] then
-      -- If a mod key of this type is pressed, we don't know if it is
-      -- the right or the left one, so we can't determine if this is a
-      -- key-up or key-down event, so we just toggle the `modState`
-      -- value corresponding to this key code.
+      -- If a mod key of this type is currently pressed, we can't
+      -- determine if this event was a key-up or key-down event, so we
+      -- just toggle the `modState` value corresponding to the event's
+      -- key code.
       modStates[keyCode] = not modStates[keyCode]
     else
-      -- If no mod key of this type is pressed, we know that it is a
-      -- key-up event, so we set the `modState` value corresponding to
+      -- If no mod keys of this type are pressed, we know that this was
+      -- a key-up event, so we set the `modState` value corresponding to
       -- this key code to false. We also set the `modState` value
-      -- corresponding to its sibling key code (left/right) to false
-      -- to ensure that the state is correct in case in .
+      -- corresponding to its sibling key code (e.g. the sibling of left
+      -- shift is right shift) to false to ensure that the state for
+      -- that key is correct as well. This code makes the `modState`
+      -- self correcting. If it ever gets in an incorrect state, which
+      -- could happend if some other code triggers multiple key-down
+      -- events for a single modifier key, the state will self correct
+      -- once all modifier keys of that type are released.
       modStates[keyCode] = false
       modStates[KEY_CODE_TO_SIBLING_KEY_CODE[keyCode]] = false
     end
@@ -171,7 +174,9 @@ end):start()
 
 
 -- Remap [`] -> [escape] and [cmd + `] -> [`], but only when my external
--- keyboard is not connected.
+-- keyboard is not connected. I use the grave accent key as my escape
+-- key when using my laptop's built-in keyboard. And then when I
+-- actually want to type a grave accent, I use [cmd + `].
 graveAccentHotkey = hs.hotkey.new(nil, '`', function() hs.eventtap.keyStroke(nil, 'escape', 0) end)
 cmdGraveAccentHotkey = hs.hotkey.new('cmd', '`', function() hs.eventtap.keyStrokes('`') end)
 
@@ -200,8 +205,8 @@ usbWatcher = hs.usb.watcher.new(function(event)
 end):start()
 
 
--- A global hotkey that activates Chrome opens a new tab. Below the
--- hotkey is set to [cmd + escape], but I have caps lock mapped to the
+-- A global hotkey that activates Chrome and opens a new tab. The hotkey
+-- is set to [cmd + escape], but I have my caps lock key mapped to the
 -- escape key using System Preferences > Keyboard > Modifier Keys, so
 -- this hotkey is really for [cmd + caps lock].
 hs.hotkey.bind('cmd', 'escape', function()
@@ -209,11 +214,11 @@ hs.hotkey.bind('cmd', 'escape', function()
 end)
 
 
--- Chrome hotkeys.
+-- Remapped Chrome hotkeys.
 chromeHotkeys = {
-  -- Toggle developer tools [cmd + 1].
+  -- Assign [cmd + 1] to toggle the developer tools.
   hs.hotkey.new('cmd', '1', function() hs.eventtap.keyStroke('alt+cmd', 'i') end),
-  -- Toggle full screen mode [cmd + 3].
+  -- Assign [cmd + 3] to toggle full screen mode.
   hs.hotkey.new('cmd', '3', function() hs.eventtap.keyStroke('cmd+ctrl', 'f') end),
 }
 
@@ -229,13 +234,15 @@ function disableChromeHotkeys()
   end
 end
 
-if hs.window.focusedWindow() and hs.window.focusedWindow():application():name() == 'Google Chrome' then
-  enableChromeHotkeys()
-end
-
 chromeWindowFilter = hs.window.filter.new('Google Chrome')
 chromeWindowFilter:subscribe(hs.window.filter.windowFocused, enableChromeHotkeys)
 chromeWindowFilter:subscribe(hs.window.filter.windowUnfocused, disableChromeHotkeys)
+
+if hs.window.focusedWindow() and hs.window.focusedWindow():application():name() == 'Google Chrome' then
+  -- If this script is initialized with a Chrome window already in
+  -- focus, enable the Chrome hotkeys.
+  enableChromeHotkeys()
+end
 
 
 -- In Davinci Resolve, remap [cmd + scroll] -> [alt + scroll].
@@ -246,8 +253,8 @@ davinciResolveScrollWatcher = hs.eventtap.new({hs.eventtap.event.types.scrollWhe
 end)
 
 davinciResolveWindowFilter = hs.window.filter.new(function(win)
-  -- Here we use a custom function because the DaVinci Resolve window
-  -- is not detected for some reason when it is fullscreen mode if we
+  -- Here we use a custom function because the DaVinci Resolve window is
+  -- not detected for some reason when it is in full screen mode if we
   -- try to use: hs.window.filter.new('DaVinci Resolve')
   return win:application():name() == 'DaVinci Resolve'
 end)
@@ -261,7 +268,10 @@ davinciResolveWindowFilter:subscribe(hs.window.filter.windowUnfocused, function(
 end)
 
 
--- For hot reloading.
+-- This code automatically realoads this hammer configutation file
+-- whenever a file in the ~/.hammerspoon directory is changed, and shows
+-- the alert, "Config reloaded," whenever it does. I enable this code
+-- while debugging.
 -- hs.loadSpoon('ReloadConfiguration')
 -- spoon.ReloadConfiguration:start()
 -- hs.alert.show('Config reloaded')
