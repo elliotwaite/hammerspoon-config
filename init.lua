@@ -1,5 +1,5 @@
 -- A helper function for printing out the contents of a table.
--- local inspect = require('inspect')
+-- local inspect = require('debug/inspect')
 -- function p(x)
 --   print(inspect(x))
 -- end
