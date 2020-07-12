@@ -8,6 +8,22 @@
 -- hotkeys only apply when my external keyboard is not connected.
 EXTERNAL_KEYBOARD_NAME = 'Advantage2 Keyboard'
 
+-- The name of my external mouse. This is used below to swap the middle
+-- and right mouse button events when my external mouse is connected.
+EXTERNAL_MOUSE_NAME = 'Evoluent VerticalMouse C'
+
+externalKeyboardIsConnected = false
+externalMouseIsConnected = false
+for _, device in pairs(hs.usb.attachedDevices()) do
+  print(device.productName)
+  if device.productName == EXTERNAL_KEYBOARD_NAME then
+    externalKeyboardIsConnected = true
+  elseif
+    device.productName == EXTERNAL_MOUSE_NAME then
+    externalMouseIsConnected = true
+  end
+end
+
 -- These constants are used in the code below to allow hotkeys to be
 -- assigned using side-specific modifier keys.
 ORDERED_KEY_CODES = {58, 61, 55, 54, 59, 62, 56, 60}
@@ -180,19 +196,12 @@ end):start()
 graveAccentHotkey = hs.hotkey.new(nil, '`', function() hs.eventtap.keyStroke(nil, 'escape', 0) end)
 cmdGraveAccentHotkey = hs.hotkey.new('cmd', '`', function() hs.eventtap.keyStrokes('`') end)
 
-externalKeyboardIsConnected = false
-for _, device in pairs(hs.usb.attachedDevices()) do
-  if device.productName == EXTERNAL_KEYBOARD_NAME then
-    externalKeyboardIsConnected = true
-    break
-  end
-end
 if not externalKeyboardIsConnected then
   graveAccentHotkey:enable()
   cmdGraveAccentHotkey:enable()
 end
 
-usbWatcher = hs.usb.watcher.new(function(event)
+externalKeyboardWatcher = hs.usb.watcher.new(function(event)
   if event.productName == EXTERNAL_KEYBOARD_NAME then
     if event.eventType == 'added' then
       graveAccentHotkey:disable()
@@ -266,6 +275,111 @@ end)
 davinciResolveWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
   davinciResolveScrollWatcher:stop()
 end)
+
+
+-- I swap the middle and right mouse button events when my external
+-- mouse is connected.
+--
+-- Note: When I convert a middle button event to a right button event,
+-- it gets recaught by the right button event handler. However, this
+-- doesn't happend when converting right button events to middle button
+-- events (perhaps this is due to the order in which Hammerspoon
+-- processes the different event types). So to prevent the right button
+-- event handler from undoing the initial event conversion, I set the
+-- "eventSourceUserData" property to 1 when I convert a middle button
+-- event to a right button event, and then whenever I recieve a right
+-- button event, I check if the "eventSourceUserData" property is 1 to
+-- determine if it actually came from the middle button event handler,
+-- in which case I change the "evenSourceUserData" property back to 0
+-- (the default value) and let it pass through. The choice of using the
+-- "eventSourceUserData" porperty was arbitrary, it was just one of the
+-- event properties that didn't seem like it was being used for anything
+-- else (it was always 0), so I used it to pass data between the event
+-- handlers.
+mouseWatchers = {
+  hs.eventtap.new({hs.eventtap.event.types.rightMouseDown}, function(event)
+    if event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 1 then
+      event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 0)
+      return false
+    end
+    -- print('rightMouseDown')
+    event:setType(hs.eventtap.event.types.otherMouseDown)
+    event:setProperty(hs.eventtap.event.properties.mouseEventButtonNumber, 2)
+  end),
+
+  hs.eventtap.new({hs.eventtap.event.types.rightMouseUp}, function(event)
+    if event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 1 then
+      event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 0)
+      return false
+    end
+    -- print('rightMouseUp')
+    event:setType(hs.eventtap.event.types.otherMouseUp)
+    event:setProperty(hs.eventtap.event.properties.mouseEventButtonNumber, 2)
+  end),
+
+  hs.eventtap.new({hs.eventtap.event.types.rightMouseDragged}, function(event)
+    if event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 1 then
+      event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 0)
+      return false
+    end
+    -- print('rightMouseDragged')
+    event:setType(hs.eventtap.event.types.otherMouseDragged)
+    event:setProperty(hs.eventtap.event.properties.mouseEventButtonNumber, 2)
+  end),
+
+  hs.eventtap.new({hs.eventtap.event.types.otherMouseDown}, function(event)
+    if event:getProperty(hs.eventtap.event.properties.mouseEventButtonNumber) == 2 then
+      -- print('middleMouseDown')
+      event:setType(hs.eventtap.event.types.rightMouseDown)
+      event:setProperty(hs.eventtap.event.properties.mouseEventButtonNumber, 1)
+      event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
+    end
+  end),
+
+  hs.eventtap.new({hs.eventtap.event.types.otherMouseUp}, function(event)
+    if event:getProperty(hs.eventtap.event.properties.mouseEventButtonNumber) == 2 then
+      -- print('middleMouseUp')
+      event:setType(hs.eventtap.event.types.rightMouseUp)
+      event:setProperty(hs.eventtap.event.properties.mouseEventButtonNumber, 1)
+      event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
+    end
+  end),
+
+  hs.eventtap.new({hs.eventtap.event.types.otherMouseDragged}, function(event)
+    if event:getProperty(hs.eventtap.event.properties.mouseEventButtonNumber) == 2 then
+      -- print('middleMouseDragged')
+      event:setType(hs.eventtap.event.types.rightMouseDragged)
+      event:setProperty(hs.eventtap.event.properties.mouseEventButtonNumber, 1)
+      event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
+    end
+  end),
+}
+
+function startMouseWatchers()
+  for _, mouseWatcher in ipairs(mouseWatchers) do
+    mouseWatcher:start()
+  end
+end
+
+function stopMouseWatchers()
+  for _, mouseWatcher in ipairs(mouseWatchers) do
+    mouseWatcher:stop()
+  end
+end
+
+if externalMouseIsConnected then
+  startMouseWatchers()
+end
+
+externalMouseWatcher = hs.usb.watcher.new(function(event)
+  if event.productName == EXTERNAL_MOUSE_NAME then
+    if event.eventType == 'added' then
+      startMouseWatchers()
+    elseif event.eventType == 'removed' then
+      stopMouseWatchers()
+    end
+  end
+end):start()
 
 
 -- This code automatically realoads this hammer configutation file

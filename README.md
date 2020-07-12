@@ -32,6 +32,16 @@ Remapped Chrome hotkeys:
 Remapped Davinci Resolve events:
 * `cmd + scroll` → `alt + scroll` (so that I can use `cmd + scroll` to zoom in an out of the timeline)
 
+I swap my middle and right mouse button events (I use an Evoluent
+vertical mouse, and the Evoluent mouse driver is currently broken in Big
+Sur, so I use Hammerspoon to remap the buttons instead):
+* `rightMouseDown` → `middleMouseDown`
+* `rightMouseUp` → `middleMouseUp`
+* `rightMouseDragged` → `middleMouseDragged`
+* `middleMouseDown` → `rightMouseDown`
+* `middleMouseUp` → `rightMouseUp`
+* `middleMouseDragged` → `rightMouseDragged`
+
 My YouTube Video about Hammerspoon: https://youtu.be/wpVNm8Ub-1s
 
 [<img src="https://img.youtube.com/vi/wpVNm8Ub-1s/hqdefault.jpg">](https://www.youtube.com/watch?v=wpVNm8Ub-1s)
