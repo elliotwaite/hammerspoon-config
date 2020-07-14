@@ -27,7 +27,7 @@ Global hotkeys:
 
 Remapped Chrome hotkeys:
 * `cmd + 1` → `alt + cmd + i` (Toggle the developer tools)
-* `cmd + 3` → `cmd + ctrl + f` (Toggle full screen mode)
+* `cmd + 4` → `cmd + ctrl + f` (Toggle full screen mode)
 
 Remapped Davinci Resolve events:
 * `cmd + scroll` → `alt + scroll` (so that I can use `cmd + scroll` to zoom in an out of the timeline)
