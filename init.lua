@@ -227,8 +227,8 @@ end)
 chromeHotkeys = {
   -- Assign [cmd + 1] to toggle the developer tools.
   hs.hotkey.new('cmd', '1', function() hs.eventtap.keyStroke('alt+cmd', 'i', 0) end),
-  -- Assign [cmd + 3] to toggle full screen mode.
-  hs.hotkey.new('cmd', '3', function() hs.eventtap.keyStroke('cmd+ctrl', 'f', 0) end),
+  -- Assign [cmd + 4] to toggle full screen mode.
+  hs.hotkey.new('cmd', '4', function() hs.eventtap.keyStroke('cmd+ctrl', 'f', 0) end),
 }
 
 function enableChromeHotkeys()
