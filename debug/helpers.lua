@@ -13,3 +13,14 @@ end):start()
 hs.loadSpoon('ReloadConfiguration')
 spoon.ReloadConfiguration:start()
 hs.alert.show('Config reloaded')
+
+-- For printing all of the properties of an event.
+function print_event_properties(event)
+  print('---start---')
+  for key, val in pairs(hs.eventtap.event.properties) do
+    if type(key) == 'string' then
+      print(key, event:getProperty(hs.eventtap.event.properties[key]))
+    end
+  end
+  print('---end---')
+end

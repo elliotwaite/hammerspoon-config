@@ -1,8 +1,8 @@
 -- A helper function for printing out the contents of a table.
--- local inspect = require('debug/inspect')
--- function p(x)
---   print(inspect(x))
--- end
+local inspect = require('debug/inspect')
+function p(x)
+  print(inspect(x))
+end
 
 -- The name of my external keyboard. This is used below to make certain
 -- hotkeys only apply when my external keyboard is not connected.
@@ -106,12 +106,14 @@ SIDE_SPECIFIC_HOTKEYS = {
   {'leftCmd+leftShift', 'h', 'cmd+shift', 'left'},
   {'leftCmd', 'j', nil, 'left'},
   {'leftCmd+leftShift', 'j', 'shift', 'left'},
+  {'leftCmd+rightShift', 'j', 'shift', 'left'},
   {'leftCmd', 'k', nil, 'down'},
   {'leftCmd+leftShift', 'k', 'cmd+shift', 'down'},
   {'leftCmd+rightShift', 'k', 'shift', 'down'},
   {'leftCmd+leftShift+rightShift', 'k', 'shift', 'down'},
   {'leftCmd', 'l', nil, 'right'},
   {'leftCmd+leftShift', 'l', 'shift', 'right'},
+  {'leftCmd+rightShift', 'l', 'shift', 'right'},
   {'leftCmd', ';', 'cmd', 'right'},
   {'leftCmd+leftShift', ';', 'cmd+shift', 'right'},
   {'leftCmd', "'", 'cmd', 'right'},
@@ -381,11 +383,49 @@ externalMouseWatcher = hs.usb.watcher.new(function(event)
   end
 end):start()
 
+screenWidth = hs.screen:primaryScreen():fullFrame().w
+screenWatcher = hs.screen.watcher.new(function()
+  screenWidth = hs.screen:primaryScreen():fullFrame().w
+end):start()
+
+-- MENU_BAR_BUFFER = 15
+-- isSlidingAlongTop = false
+-- menuBarWatcher = hs.eventtap.new({hs.eventtap.event.types.mouseMoved}, function(event)
+--   -- print('mouse moved')
+--   -- print('delta',
+--   --       event:getProperty(hs.eventtap.event.properties.mouseEventDeltaX),
+--   --       event:getProperty(hs.eventtap.event.properties.mouseEventDeltaY))
+--   point = hs.mouse.getAbsolutePosition()
+--   -- print(point.x, point.y)
+--   if isSlidingAlongTop then
+--     if point.y > 23 then
+--       isSlidingAlongTop = false
+--     end
+--   else
+--     if point.y < MENU_BAR_BUFFER then
+--       if point.x < MENU_BAR_BUFFER or point.x > screenWidth - MENU_BAR_BUFFER then
+--         isSlidingAlongTop = true
+--       else
+--         -- print('delta x', event:getProperty(hs.eventtap.event.properties.mouseEventDeltaX))
+--         point.y = MENU_BAR_BUFFER
+--         -- event:setProperty(hs.eventtap.event.properties.mouseEventDeltaY, 10)
+--         -- print('keep')
+--         -- point.x = point.x + event:getProperty(hs.eventtap.event.properties.mouseEventDeltaX)
+--         hs.mouse.setAbsolutePosition(point)
+--         -- print('set it')
+--         return true
+--       end
+--     end
+--   end
+--   -- print(even.getProperty[hs.eventtap.event.properties.])
+-- end):start()
+
+
 
 -- This code automatically realoads this hammer configutation file
 -- whenever a file in the ~/.hammerspoon directory is changed, and shows
 -- the alert, "Config reloaded," whenever it does. I enable this code
 -- while debugging.
--- hs.loadSpoon('ReloadConfiguration')
--- spoon.ReloadConfiguration:start()
--- hs.alert.show('Config reloaded')
+hs.loadSpoon('ReloadConfiguration')
+spoon.ReloadConfiguration:start()
+hs.alert.show('Config reloaded')
