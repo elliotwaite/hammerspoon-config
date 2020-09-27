@@ -94,14 +94,14 @@ KEY_CODE_TO_SIBLING_KEY_CODE = {
 --         Same format as `fromKey`.
 --
 SIDE_SPECIFIC_HOTKEYS = {
-  {'leftCmd', 'u', 'ctrl', 'left'},
-  {'leftCmd+leftShift', 'u', 'ctrl+shift', 'left'},
+  {'leftCmd', 'u', 'alt', 'left'},
+  {'leftCmd+leftShift', 'u', 'alt+shift', 'left'},
   {'leftCmd', 'i', nil, 'up'},
   {'leftCmd+leftShift', 'i', 'cmd+shift', 'up'},
   {'leftCmd+rightShift', 'i', 'shift', 'up'},
   {'leftCmd+leftShift+rightShift', 'i', 'shift', 'up'},
-  {'leftCmd', 'o', 'ctrl', 'right'},
-  {'leftCmd+leftShift', 'o', 'ctrl+shift', 'right'},
+  {'leftCmd', 'o', 'alt', 'right'},
+  {'leftCmd+leftShift', 'o', 'alt+shift', 'right'},
   {'leftCmd', 'h', 'cmd', 'left'},
   {'leftCmd+leftShift', 'h', 'cmd+shift', 'left'},
   {'leftCmd', 'j', nil, 'left'},
@@ -426,6 +426,6 @@ end):start()
 -- whenever a file in the ~/.hammerspoon directory is changed, and shows
 -- the alert, "Config reloaded," whenever it does. I enable this code
 -- while debugging.
-hs.loadSpoon('ReloadConfiguration')
-spoon.ReloadConfiguration:start()
-hs.alert.show('Config reloaded')
+-- hs.loadSpoon('ReloadConfiguration')
+-- spoon.ReloadConfiguration:start()
+-- hs.alert.show('Config reloaded')

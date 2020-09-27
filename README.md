@@ -10,8 +10,8 @@ navigation:
 * `k` → `down`
 * `j` → `left`
 * `l` → `right`
-* `u` → `ctrl + left` (left one word)
-* `o` → `ctrl + right` (right one word)
+* `u` → `alt + left` (left one word)
+* `o` → `alt + right` (right one word)
 * `h` → `cmd + left` (beginning of line)
 * `;` or `'` → `cmd + right` (end of line)
 
