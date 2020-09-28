@@ -45,3 +45,7 @@ Sur, so I use Hammerspoon to remap the buttons instead):
 My YouTube Video about Hammerspoon: https://youtu.be/wpVNm8Ub-1s
 
 [<img src="https://img.youtube.com/vi/wpVNm8Ub-1s/hqdefault.jpg">](https://www.youtube.com/watch?v=wpVNm8Ub-1s)
+
+## License
+
+[MIT](LICENSE)
