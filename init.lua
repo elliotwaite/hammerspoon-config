@@ -62,6 +62,11 @@ KEY_CODE_TO_SIBLING_KEY_CODE = {
 --     This table is used to setup my side-specific hotkeys, the format
 --     of each entry is: {fromMods, fromKey, toMods, toKey}
 --
+--      Note: If you are trying to map from one key to that same key
+--      with a different modifier (e.g. rightCmd+a -> ctrl+a), this
+--      method won't work, but you can use the workaround mentioned
+--      here: https://github.com/elliotwaite/hammerspoon-config/issues/1
+--
 --     fromMods (string):
 --         Any of the following strings, joined by plus signs ('+'). If
 --         multiple are used, they must be listed in the same order as
