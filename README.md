@@ -16,9 +16,10 @@ navigation:
 * `;` or `'` → `cmd + right` (end of line)
 
 Note: If you are trying to map from one key to that same key
-with a different modifier (e.g. rightCmd+a -> ctrl+a), this
-method won't work, but you can use the workaround mentioned
-here: https://github.com/elliotwaite/hammerspoon-config/issues/1
+with a different modifier (e.g. rightCmd+a -> ctrl+a), the default
+method I use in my code to setup the above mappings won't work,
+but you can use the workaround mentioned here:
+https://github.com/elliotwaite/hammerspoon-config/issues/1
 
 The following hotkeys are enabled when my external keyboard is not connected:
 * ``` ` ``` → `escape`
