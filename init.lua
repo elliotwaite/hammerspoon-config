@@ -221,43 +221,43 @@ externalKeyboardWatcher = hs.usb.watcher.new(function(event)
 end):start()
 
 
--- A global hotkey that activates Chrome and opens a new tab. The hotkey
+-- A global hotkey that activates Brave and opens a new tab. The hotkey
 -- is set to [cmd + escape], but I have my caps lock key mapped to the
 -- escape key using System Preferences > Keyboard > Modifier Keys, so
 -- this hotkey is really for [cmd + caps lock].
 hs.hotkey.bind('cmd', 'escape', function()
-  hs.osascript.applescriptFromFile('openNewChromeTab.applescript')
+  hs.osascript.applescriptFromFile('openNewBraveTab.applescript')
 end)
 
 
--- Remapped Chrome hotkeys.
-chromeHotkeys = {
+-- Remapped Brave hotkeys.
+braveHotkeys = {
   -- Assign [cmd + 1] to toggle the developer tools.
   hs.hotkey.new('cmd', '1', function() hs.eventtap.keyStroke('alt+cmd', 'i', 0) end),
   -- Assign [cmd + 4] to toggle full screen mode.
   hs.hotkey.new('cmd', '4', function() hs.eventtap.keyStroke('cmd+ctrl', 'f', 0) end),
 }
 
-function enableChromeHotkeys()
-  for _, hotkey in ipairs(chromeHotkeys) do
+function enableBraveHotkeys()
+  for _, hotkey in ipairs(braveHotkeys) do
     hotkey:enable()
   end
 end
 
-function disableChromeHotkeys()
-  for _, hotkey in ipairs(chromeHotkeys) do
+function disableBraveHotkeys()
+  for _, hotkey in ipairs(braveHotkeys) do
     hotkey:disable()
   end
 end
 
-chromeWindowFilter = hs.window.filter.new('Google Chrome')
-chromeWindowFilter:subscribe(hs.window.filter.windowFocused, enableChromeHotkeys)
-chromeWindowFilter:subscribe(hs.window.filter.windowUnfocused, disableChromeHotkeys)
+braveWindowFilter = hs.window.filter.new('Brave Browser')
+braveWindowFilter:subscribe(hs.window.filter.windowFocused, enableBraveHotkeys)
+braveWindowFilter:subscribe(hs.window.filter.windowUnfocused, disableBraveHotkeys)
 
-if hs.window.focusedWindow() and hs.window.focusedWindow():application():name() == 'Google Chrome' then
-  -- If this script is initialized with a Chrome window already in
-  -- focus, enable the Chrome hotkeys.
-  enableChromeHotkeys()
+if hs.window.focusedWindow() and hs.window.focusedWindow():application():name() == 'Brave Browser' then
+  -- If this script is initialized with a Brave window already in
+  -- focus, enable the Brave hotkeys.
+  enableBraveHotkeys()
 end
 
 

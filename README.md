@@ -26,12 +26,12 @@ The following hotkeys are enabled when my external keyboard is not connected:
 * ```cmd + ` ``` → ``` ` ```
 
 Global hotkeys:
-* `cmd + escape` → Activate Google Chrome and open a new tab. (Note:
+* `cmd + escape` → Activate Brave and open a new tab. (Note:
   I have my `caps lock` key remapped to `escape` in `System Preferences >
   Keyboard > Modifier Keys`, so for me, this hotkey is really activated
   by `cmd + caps lock`)
 
-Remapped Chrome hotkeys:
+Remapped Brave hotkeys:
 * `cmd + 1` → `alt + cmd + i` (Toggle the developer tools)
 * `cmd + 4` → `cmd + ctrl + f` (Toggle full screen mode)
 

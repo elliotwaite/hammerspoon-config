@@ -1,5 +1,5 @@
-if application "Google Chrome" is running then
-	tell application "Google Chrome"
+if application "Brave Browser" is running then
+	tell application "Brave Browser"
 		if (count every window) = 0 then
 			make new window
 		else
@@ -11,7 +11,7 @@ if application "Google Chrome" is running then
 		end if
 	end tell
 else
-	tell application "Google Chrome"
+	tell application "Brave Browser"
 		activate
 	end tell
 end if
