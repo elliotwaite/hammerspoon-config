@@ -123,6 +123,8 @@ SIDE_SPECIFIC_HOTKEYS = {
   {'leftCmd+leftShift', ';', 'cmd+shift', 'right'},
   {'leftCmd', "'", 'cmd', 'right'},
   {'leftCmd+leftShift', "'", 'cmd+shift', 'right'},
+  {'leftCmd', '8', nil, 'home'},
+  {'leftCmd', ',', nil, 'end'},
 }
 
 hotkeyGroups = {}
