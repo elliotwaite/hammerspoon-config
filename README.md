@@ -16,7 +16,6 @@ navigation:
 * `;` or `'` → `cmd + right` (end of line)
 * `;` or `'` → `cmd + right` (end of line)
 * `8` → `home`
-* `,` → `end`
 
 Note: If you are trying to map from one key to that same key
 with a different modifier (e.g. rightCmd+a -> ctrl+a), the default
