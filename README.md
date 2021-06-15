@@ -16,9 +16,13 @@ The following keys get remapped so that they can be used for navigation:
 * `leftCmd + ;` or `'` → `cmd + right` (jump to end of line)
 * `leftCmd + ;` or `'` → `cmd + right` (jump to end of line)
 
-I also map `alt + scroll` to scroll to the top or bottom of the page:
-* `alt + scroll up` → `cmd + up` (scroll to top of page)
-* `alt + scroll down` → `cmd + down` (scroll to bottom of page)
+I also map `alt + scroll` to scroll to the top or bottom of the page by
+multiplying the scroll distances by 1,000. This is better than just
+mapping to `cmd + up/down` because this allows you to scroll to the
+top/bottom of pages that are not in focus but are hovered over by the
+cursor:
+* `alt + scroll up` → `alt + scroll up 1,000x` (scroll to top of page)
+* `alt + scroll down` → `alt + scroll down 1,000x` (scroll to bottom of page)
 
 And I use [Mos](https://mos.caldis.me) to map `cmd + scroll` to
 scrolling in the same direction but faster:

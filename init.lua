@@ -286,23 +286,33 @@ davinciResolveWindowFilter:subscribe(hs.window.filter.windowUnfocused, function(
   davinciResolveScrollWatcher:stop()
 end)
 
+local cmdScrollMultiple = 1000
 mouseWatchers = {
-  -- Remap [alt + scroll up] -> [cmd + up] and [alt + scroll down] ->
-  -- [cmd + down].
+  -- Remap [alt + scroll up] -> [scroll to top of page] and
+  -- [alt + scroll down] -> [scroll to top of page].
   hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
     if (
       event:getFlags():containExactly({'alt'}) and
-      -- The value of eventSourceUserData will be 1 if this scroll event
-      -- was alread remapped for Davinci Resolve, in which case we don't
-      -- want to remap it a second time.
+      -- Any time I process or create a scroll event, I set its
+      -- eventSourceUserData property to 1 so that I can check for that
+      -- property later to make sure I don't process that scroll event
+      -- twice. So if eventSourceUserData is 0 (the default value), that
+      -- means this is a new scroll event.
       event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
     ) then
-      if event:getProperty(hs.eventtap.event.properties.scrollWheelEventDeltaAxis1) > 0 then
-        hs.eventtap.keyStroke('cmd', 'up', 0)
-      else
-        hs.eventtap.keyStroke('cmd', 'down', 0)
-      end
-      return true
+      event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
+      event:setProperty(
+        hs.eventtap.event.properties.scrollWheelEventDeltaAxis1,
+        event:getProperty(hs.eventtap.event.properties.scrollWheelEventDeltaAxis1) * cmdScrollMultiple
+      )
+      event:setProperty(
+        hs.eventtap.event.properties.scrollWheelEventFixedPtDeltaAxis1,
+        event:getProperty(hs.eventtap.event.properties.scrollWheelEventFixedPtDeltaAxis1) * cmdScrollMultiple
+      )
+      event:setProperty(
+        hs.eventtap.event.properties.scrollWheelEventPointDeltaAxis1,
+        event:getProperty(hs.eventtap.event.properties.scrollWheelEventPointDeltaAxis1) * cmdScrollMultiple
+      )
     end
   end),
 
@@ -414,6 +424,6 @@ end):start()
 -- the alert, "Config reloaded", whenever it does. I uncomment this code
 -- when debugging.
 
--- hs.loadSpoon('ReloadConfiguration')
--- spoon.ReloadConfiguration:start()
--- hs.alert.show('Config reloaded')
+hs.loadSpoon('ReloadConfiguration')
+spoon.ReloadConfiguration:start()
+hs.alert.show('Config reloaded')
