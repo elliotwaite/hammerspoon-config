@@ -3,25 +3,28 @@
 My Hammerspoon configuration file sets up the following rules. See my [init.lua](https://github.com/elliotwaite/hammerspoon-config/blob/master/init.lua)
 file for more details.
 
-When the left command key is pressed, the following keys get remapped so
-that they can be used for
-navigation:
-* `i` → `up`
-* `k` → `down`
-* `j` → `left`
-* `l` → `right`
-* `u` → `alt + left` (left one word)
-* `o` → `alt + right` (right one word)
-* `h` → `cmd + left` (beginning of line)
-* `;` or `'` → `cmd + right` (end of line)
-* `;` or `'` → `cmd + right` (end of line)
-* `8` → `home`
+The following keys get remapped so that they can be used for navigation:
+* `leftCmd + i` → `up`
+* `leftAlt + i` → `cmd + up` (jump to top of the page)
+* `leftCmd + k` → `down`
+* `leftAlt + k` → `cmd + down` (jump to bottom of the page)
+* `leftCmd + j` → `left`
+* `leftCmd + l` → `right`
+* `leftCmd + u` → `alt + left` (left one word)
+* `leftCmd + o` → `alt + right` (right one word)
+* `leftCmd + h` → `cmd + left` (jump to beginning of line)
+* `leftCmd + ;` or `'` → `cmd + right` (jump to end of line)
+* `leftCmd + ;` or `'` → `cmd + right` (jump to end of line)
+* `leftCmd + 8` → `home`
 
-Note: If you are trying to map from one key to that same key
-with a different modifier (e.g. rightCmd+a -> ctrl+a), the default
-method I use in my code to setup the above mappings won't work,
-but you can use the workaround mentioned here:
-https://github.com/elliotwaite/hammerspoon-config/issues/1
+I also map `alt + scroll` to jump to the top or bottom of the page:
+* `alt + scroll up` → `cmd + up` (jump to top of the page)
+* `alt + scroll down` → `cmd + down` (jump to bottom of the page)
+
+And I use [https://mos.caldis.me](Mos) to map `cmd + scroll` to
+scrolling in the same direction but faster:
+* `cmd + scroll up` → `scroll up faster`
+* `cmd + scroll down` → `scroll down faster`
 
 The following hotkeys are enabled when my external keyboard is not connected:
 * ``` ` ``` → `escape`
@@ -40,10 +43,6 @@ Remapped Brave hotkeys:
 Remapped Davinci Resolve events:
 * `cmd + scroll` → `alt + scroll` (so that I can use `cmd + scroll` to zoom in an out of the timeline)
 
-I remap `alt + scroll` to jump to the top or bottom of the page:
-* `alt + scroll up` → `cmd + up`
-* `alt + scroll down` → `cmd + down`
-
 I also swap my middle and right mouse button events (I use an Evoluent
 vertical mouse, and the Evoluent mouse driver is currently broken in Big
 Sur, so I use Hammerspoon to remap the buttons instead):
@@ -57,6 +56,12 @@ Sur, so I use Hammerspoon to remap the buttons instead):
 My YouTube Video about Hammerspoon: https://youtu.be/wpVNm8Ub-1s
 
 [<img src="https://img.youtube.com/vi/wpVNm8Ub-1s/hqdefault.jpg">](https://www.youtube.com/watch?v=wpVNm8Ub-1s)
+
+Note: If you are trying to map from one key to that same key with a
+different modifier (e.g. `rightCmd + a` -> `ctrl + a`), the default
+method I use in my code to setup the above mappings won't work, but you
+can use the workaround mentioned here:
+https://github.com/elliotwaite/hammerspoon-config/issues/1
 
 ## License
 
