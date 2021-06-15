@@ -20,7 +20,7 @@ I also map `alt + scroll` to scroll to the top or bottom of the page:
 * `alt + scroll up` → `cmd + up` (scroll to top of page)
 * `alt + scroll down` → `cmd + down` (scroll to bottom of page)
 
-And I use [https://mos.caldis.me](Mos) to map `cmd + scroll` to
+And I use [Mos](https://mos.caldis.me) to map `cmd + scroll` to
 scrolling in the same direction but faster:
 * `cmd + scroll up` → `scroll up faster`
 * `cmd + scroll down` → `scroll down faster`
