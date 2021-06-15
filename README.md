@@ -21,8 +21,8 @@ multiplying the scroll distances by 1,000. This is better than just
 mapping to `cmd + up/down` because this allows you to scroll to the
 top/bottom of pages that are not in focus but are hovered over by the
 cursor:
-* `alt + scroll up` → `alt + scroll up 1,000x` (scroll to top of page)
-* `alt + scroll down` → `alt + scroll down 1,000x` (scroll to bottom of page)
+* `alt + scroll up` → `scroll up 1,000x` (scroll to top of page)
+* `alt + scroll down` → `scroll down 1,000x` (scroll to bottom of page)
 
 And I use [Mos](https://mos.caldis.me) to map `cmd + scroll` to
 scrolling in the same direction but faster:
