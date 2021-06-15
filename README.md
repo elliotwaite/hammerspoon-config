@@ -5,21 +5,20 @@ file for more details.
 
 The following keys get remapped so that they can be used for navigation:
 * `leftCmd + i` → `up`
-* `leftAlt + i` → `cmd + up` (jump to top of the page)
+* `leftAlt + i` → `cmd + up` (scroll to top of page)
 * `leftCmd + k` → `down`
-* `leftAlt + k` → `cmd + down` (jump to bottom of the page)
+* `leftAlt + k` → `cmd + down` (scroll to bottom of page)
 * `leftCmd + j` → `left`
-* `leftCmd + l` → `right`
 * `leftCmd + u` → `alt + left` (left one word)
-* `leftCmd + o` → `alt + right` (right one word)
 * `leftCmd + h` → `cmd + left` (jump to beginning of line)
+* `leftCmd + l` → `right`
+* `leftCmd + o` → `alt + right` (right one word)
 * `leftCmd + ;` or `'` → `cmd + right` (jump to end of line)
 * `leftCmd + ;` or `'` → `cmd + right` (jump to end of line)
-* `leftCmd + 8` → `home`
 
-I also map `alt + scroll` to jump to the top or bottom of the page:
-* `alt + scroll up` → `cmd + up` (jump to top of the page)
-* `alt + scroll down` → `cmd + down` (jump to bottom of the page)
+I also map `alt + scroll` to scroll to the top or bottom of the page:
+* `alt + scroll up` → `cmd + up` (scroll to top of page)
+* `alt + scroll down` → `cmd + down` (scroll to bottom of page)
 
 And I use [https://mos.caldis.me](Mos) to map `cmd + scroll` to
 scrolling in the same direction but faster:
