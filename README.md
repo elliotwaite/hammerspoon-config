@@ -57,7 +57,7 @@ My YouTube Video about Hammerspoon: https://youtu.be/wpVNm8Ub-1s
 [<img src="https://img.youtube.com/vi/wpVNm8Ub-1s/hqdefault.jpg">](https://www.youtube.com/watch?v=wpVNm8Ub-1s)
 
 Note: If you are trying to map from one key to that same key with a
-different modifier (e.g. `rightCmd + a` -> `ctrl + a`), the default
+different modifier (e.g. `rightCmd + a` → `ctrl + a`), the default
 method I use in my code to setup the above mappings won't work, but you
 can use the workaround mentioned here:
 https://github.com/elliotwaite/hammerspoon-config/issues/1
