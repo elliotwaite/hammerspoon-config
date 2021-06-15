@@ -266,6 +266,7 @@ end
 davinciResolveScrollWatcher = hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
   if event:getFlags():containExactly({'cmd'}) then
     event:setFlags({alt = true})
+    event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
   end
 end)
 
@@ -284,27 +285,45 @@ davinciResolveWindowFilter:subscribe(hs.window.filter.windowUnfocused, function(
   davinciResolveScrollWatcher:stop()
 end)
 
-
--- I swap the middle and right mouse button events when my external
--- mouse is connected.
---
--- Note: When I convert a middle button event to a right button event,
--- it gets recaught by the right button event handler. However, this
--- doesn't happend when converting right button events to middle button
--- events (perhaps this is due to the order in which Hammerspoon
--- processes the different event types). So to prevent the right button
--- event handler from undoing the initial event conversion, I set the
--- "eventSourceUserData" property to 1 when I convert a middle button
--- event to a right button event, and then whenever I recieve a right
--- button event, I check if the "eventSourceUserData" property is 1 to
--- determine if it actually came from the middle button event handler,
--- in which case I change the "evenSourceUserData" property back to 0
--- (the default value) and let it pass through. The choice of using the
--- "eventSourceUserData" porperty was arbitrary, it was just one of the
--- event properties that didn't seem like it was being used for anything
--- else (it was always 0), so I used it to pass data between the event
--- handlers.
 mouseWatchers = {
+  -- Remap [alt + scroll up] -> [cmd + up] and [alt + scroll down] ->
+  -- [cmd + down].
+  hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
+    if (
+      event:getFlags():containExactly({'alt'}) and
+      -- The value of eventSourceUserData will be 1 if this scroll event
+      -- was alread remapped for Davinci Resolve, in which case we don't
+      -- want to remap it a second time.
+      event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
+    ) then
+      if event:getProperty(hs.eventtap.event.properties.scrollWheelEventDeltaAxis1) > 0 then
+        hs.eventtap.keyStroke('cmd', 'up', 0)
+      else
+        hs.eventtap.keyStroke('cmd', 'down', 0)
+      end
+      return true
+    end
+  end),
+
+  -- I swap the middle and right mouse button events when my external
+  -- mouse is connected.
+  --
+  -- Note: When I convert a middle button event to a right button event,
+  -- it gets recaught by the right button event handler. However, this
+  -- doesn't happend when converting right button events to middle button
+  -- events (perhaps this is due to the order in which Hammerspoon
+  -- processes the different event types). So to prevent the right button
+  -- event handler from undoing the initial event conversion, I set the
+  -- "eventSourceUserData" property to 1 when I convert a middle button
+  -- event to a right button event, and then whenever I recieve a right
+  -- button event, I check if the "eventSourceUserData" property is 1 to
+  -- determine if it actually came from the middle button event handler,
+  -- in which case I change the "evenSourceUserData" property back to 0
+  -- (the default value) and let it pass through. The choice of using the
+  -- "eventSourceUserData" porperty was arbitrary, it was just one of the
+  -- event properties that didn't seem like it was being used for anything
+  -- else (it was always 0), so I used it to pass data between the event
+  -- handlers.
   hs.eventtap.new({hs.eventtap.event.types.rightMouseDown}, function(event)
     if event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 1 then
       event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 0)
@@ -389,49 +408,11 @@ externalMouseWatcher = hs.usb.watcher.new(function(event)
   end
 end):start()
 
-screenWidth = hs.screen:primaryScreen():fullFrame().w
-screenWatcher = hs.screen.watcher.new(function()
-  screenWidth = hs.screen:primaryScreen():fullFrame().w
-end):start()
-
--- MENU_BAR_BUFFER = 15
--- isSlidingAlongTop = false
--- menuBarWatcher = hs.eventtap.new({hs.eventtap.event.types.mouseMoved}, function(event)
---   -- print('mouse moved')
---   -- print('delta',
---   --       event:getProperty(hs.eventtap.event.properties.mouseEventDeltaX),
---   --       event:getProperty(hs.eventtap.event.properties.mouseEventDeltaY))
---   point = hs.mouse.getAbsolutePosition()
---   -- print(point.x, point.y)
---   if isSlidingAlongTop then
---     if point.y > 23 then
---       isSlidingAlongTop = false
---     end
---   else
---     if point.y < MENU_BAR_BUFFER then
---       if point.x < MENU_BAR_BUFFER or point.x > screenWidth - MENU_BAR_BUFFER then
---         isSlidingAlongTop = true
---       else
---         -- print('delta x', event:getProperty(hs.eventtap.event.properties.mouseEventDeltaX))
---         point.y = MENU_BAR_BUFFER
---         -- event:setProperty(hs.eventtap.event.properties.mouseEventDeltaY, 10)
---         -- print('keep')
---         -- point.x = point.x + event:getProperty(hs.eventtap.event.properties.mouseEventDeltaX)
---         hs.mouse.setAbsolutePosition(point)
---         -- print('set it')
---         return true
---       end
---     end
---   end
---   -- print(even.getProperty[hs.eventtap.event.properties.])
--- end):start()
-
-
-
--- This code automatically realoads this hammer configutation file
+-- The below code automatically realoads this hammer configutation file
 -- whenever a file in the ~/.hammerspoon directory is changed, and shows
--- the alert, "Config reloaded," whenever it does. I enable this code
--- while debugging.
+-- the alert, "Config reloaded", whenever it does. I uncomment this code
+-- when debugging.
+
 -- hs.loadSpoon('ReloadConfiguration')
 -- spoon.ReloadConfiguration:start()
 -- hs.alert.show('Config reloaded')

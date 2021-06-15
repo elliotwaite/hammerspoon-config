@@ -40,7 +40,11 @@ Remapped Brave hotkeys:
 Remapped Davinci Resolve events:
 * `cmd + scroll` → `alt + scroll` (so that I can use `cmd + scroll` to zoom in an out of the timeline)
 
-I swap my middle and right mouse button events (I use an Evoluent
+I remap `alt + scroll` to jump to the top or bottom of the page:
+* `alt + scroll up` → `cmd + up`
+* `alt + scroll down` → `cmd + down`
+
+I also swap my middle and right mouse button events (I use an Evoluent
 vertical mouse, and the Evoluent mouse driver is currently broken in Big
 Sur, so I use Hammerspoon to remap the buttons instead):
 * `rightMouseDown` → `middleMouseDown`
