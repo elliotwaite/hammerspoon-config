@@ -48,13 +48,16 @@ Remapped Davinci Resolve events:
 
 I also swap my middle and right mouse button events (I use an Evoluent
 vertical mouse, and the Evoluent mouse driver is currently broken in Big
-Sur, so I use Hammerspoon to remap the buttons instead):
+Sur, so I use Hammerspoon to remap the buttons instead). And I map the
+extra thumb buttons to swipe gestures:
 * `rightMouseDown` → `middleMouseDown`
 * `rightMouseUp` → `middleMouseUp`
 * `rightMouseDragged` → `middleMouseDragged`
 * `middleMouseDown` → `rightMouseDown`
 * `middleMouseUp` → `rightMouseUp`
 * `middleMouseDragged` → `rightMouseDragged`
+* `mouseButton4Down` → `swipeLeft`
+* `mouseButton3Down` → `swipeRight`
 
 My YouTube Video about Hammerspoon: https://youtu.be/wpVNm8Ub-1s
 
