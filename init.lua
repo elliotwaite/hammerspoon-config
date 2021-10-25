@@ -395,12 +395,12 @@ mouseWatchers = {
   -- I also map [mouse button 4] -> [swipe left] and [mouse button 3] -> [swipe right].
   hs.eventtap.new({hs.eventtap.event.types.otherMouseDown}, function(event)
     if event:getProperty(hs.eventtap.event.properties.mouseEventButtonNumber) == 4 then
-      print('Swipe left')
+      -- print('Swipe left')
       require("hs.eventtap.event").newGesture("beginSwipeLeft"):post()
       require("hs.eventtap.event").newGesture("endSwipeLeft"):post()
       return true
     elseif event:getProperty(hs.eventtap.event.properties.mouseEventButtonNumber) == 3 then
-      print('Swipe right')
+      -- print('Swipe right')
       require("hs.eventtap.event").newGesture("beginSwipeRight"):post()
       require("hs.eventtap.event").newGesture("endSwipeRight"):post()
       return true
