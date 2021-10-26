@@ -39,7 +39,7 @@ Global hotkeys:
   Keyboard > Modifier Keys`, so for me, this hotkey is really activated
   by `cmd + caps lock`)
 
-Remapped Brave hotkeys:
+Remapped browser hotkeys (for both Brave and Chrome):
 * `cmd + 1` → `alt + cmd + i` (Toggle the developer tools)
 * `cmd + 4` → `cmd + ctrl + f` (Toggle full screen mode)
 

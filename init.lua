@@ -232,34 +232,36 @@ hs.hotkey.bind('cmd', 'escape', function()
 end)
 
 
--- Remapped Brave hotkeys.
-braveHotkeys = {
+-- Remapped browser hotkeys (for both Brave and Google Chrome).
+browserHotkeys = {
   -- Assign [cmd + 1] to toggle the developer tools.
   hs.hotkey.new('cmd', '1', function() hs.eventtap.keyStroke('alt+cmd', 'i', 0) end),
   -- Assign [cmd + 4] to toggle full screen mode.
   hs.hotkey.new('cmd', '4', function() hs.eventtap.keyStroke('cmd+ctrl', 'f', 0) end),
 }
 
-function enableBraveHotkeys()
-  for _, hotkey in ipairs(braveHotkeys) do
+function enableBrowserHotkeys()
+  for _, hotkey in ipairs(browserHotkeys) do
     hotkey:enable()
   end
 end
 
-function disableBraveHotkeys()
-  for _, hotkey in ipairs(braveHotkeys) do
+function disableBrowserHotkeys()
+  for _, hotkey in ipairs(browserHotkeys) do
     hotkey:disable()
   end
 end
 
-braveWindowFilter = hs.window.filter.new('Brave Browser')
-braveWindowFilter:subscribe(hs.window.filter.windowFocused, enableBraveHotkeys)
-braveWindowFilter:subscribe(hs.window.filter.windowUnfocused, disableBraveHotkeys)
+braveWindowFilter = hs.window.filter.new({'Brave Browser', 'Google Chrome'})
+braveWindowFilter:subscribe(hs.window.filter.windowFocused, enableBrowserHotkeys)
+braveWindowFilter:subscribe(hs.window.filter.windowUnfocused, disableBrowserHotkeys)
 
-if hs.window.focusedWindow() and hs.window.focusedWindow():application():name() == 'Brave Browser' then
+if hs.window.focusedWindow() and (
+    hs.window.focusedWindow():application():name() == 'Brave Browser' or
+    hs.window.focusedWindow():application():name() == 'Google Chrome') then
   -- If this script is initialized with a Brave window already in
   -- focus, enable the Brave hotkeys.
-  enableBraveHotkeys()
+  enableBrowserHotkeys()
 end
 
 
