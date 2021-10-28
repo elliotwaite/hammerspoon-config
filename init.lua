@@ -288,7 +288,24 @@ davinciResolveWindowFilter:subscribe(hs.window.filter.windowUnfocused, function(
   davinciResolveScrollWatcher:stop()
 end)
 
-local cmdScrollMultiple = 1000
+-- In Sublime Text, remap [cmd + scroll] -> [scroll]. This fixes an
+-- issue with Sublime Text where it ignores [cmd + scroll] events.
+sublimeTextScrollWatcher = hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
+  if event:getFlags():containExactly({'cmd'}) then
+    event:setFlags({cmd = false})
+    event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
+  end
+end)
+
+hs.window.filter.new('Sublime Text'):subscribe(hs.window.filter.windowFocused, function()
+  sublimeTextScrollWatcher:start()
+end)
+
+hs.window.filter.new('Sublime Text'):subscribe(hs.window.filter.windowUnfocused, function()
+  sublimeTextScrollWatcher:stop()
+end)
+
+altScrollMultiple = 1000
 mouseWatchers = {
   -- Remap [alt + scroll up] -> [scroll to top of page] and
   -- [alt + scroll down] -> [scroll to top of page].
@@ -302,18 +319,19 @@ mouseWatchers = {
       -- means this is a new scroll event.
       event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
     ) then
+      event:setFlags({alt = false})
       event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
       event:setProperty(
         hs.eventtap.event.properties.scrollWheelEventDeltaAxis1,
-        event:getProperty(hs.eventtap.event.properties.scrollWheelEventDeltaAxis1) * cmdScrollMultiple
+        event:getProperty(hs.eventtap.event.properties.scrollWheelEventDeltaAxis1) * altScrollMultiple
       )
       event:setProperty(
         hs.eventtap.event.properties.scrollWheelEventFixedPtDeltaAxis1,
-        event:getProperty(hs.eventtap.event.properties.scrollWheelEventFixedPtDeltaAxis1) * cmdScrollMultiple
+        event:getProperty(hs.eventtap.event.properties.scrollWheelEventFixedPtDeltaAxis1) * altScrollMultiple
       )
       event:setProperty(
         hs.eventtap.event.properties.scrollWheelEventPointDeltaAxis1,
-        event:getProperty(hs.eventtap.event.properties.scrollWheelEventPointDeltaAxis1) * cmdScrollMultiple
+        event:getProperty(hs.eventtap.event.properties.scrollWheelEventPointDeltaAxis1) * altScrollMultiple
       )
     end
   end),
@@ -442,6 +460,6 @@ end):start()
 -- the alert, "Config reloaded", whenever it does. I uncomment this code
 -- when debugging.
 
--- hs.loadSpoon('ReloadConfiguration')
--- spoon.ReloadConfiguration:start()
--- hs.alert.show('Config reloaded')
+hs.loadSpoon('ReloadConfiguration')
+spoon.ReloadConfiguration:start()
+hs.alert.show('Config reloaded')
