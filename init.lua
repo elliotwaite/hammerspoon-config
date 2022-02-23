@@ -308,7 +308,7 @@ end)
 altScrollMultiple = 1000
 mouseWatchers = {
   -- Remap [alt + scroll up] -> [scroll to top of page] and
-  -- [alt + scroll down] -> [scroll to top of page].
+  -- [alt + scroll down] -> [scroll to bottom of page].
   hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
     if (
       event:getFlags():containExactly({'alt'}) and
@@ -455,7 +455,7 @@ externalMouseWatcher = hs.usb.watcher.new(function(event)
   end
 end):start()
 
--- The below code automatically realoads this hammer configutation file
+-- The below code automatically reloads this hammer configuration file
 -- whenever a file in the ~/.hammerspoon directory is changed, and shows
 -- the alert, "Config reloaded", whenever it does. I uncomment this code
 -- when debugging.
