@@ -13,8 +13,8 @@ The following keys get remapped so that they can be used for navigation:
 * `leftCmd + h` → `cmd + left` (jump to beginning of line)
 * `leftCmd + l` → `right`
 * `leftCmd + o` → `alt + right` (right one word)
-* `leftCmd + ;` or `'` → `cmd + right` (jump to end of line)
-* `leftCmd + ;` or `'` → `cmd + right` (jump to end of line)
+* `leftCmd + ;` → `cmd + right` (jump to end of line)
+* `leftCmd + '` → `cmd + right` (jump to end of line)
 
 I also map `alt + scroll` to scroll to the top or bottom of the page by
 multiplying the scroll distances by 1,000. This is better than just
