@@ -2,13 +2,13 @@ Update (Feb 23, 2022): I have switched to using
 [Karabiner](https://karabiner-elements.pqrs.org/) for handling all non-scroll
 related events. I noticed that Karabiner seemed to intercept events earlier
 than Hammerspoon (for example, when trying to send Hammerspoon remapped keys to
-Keyboard Maestro, Keyboard Maestro would sometimes still intercept the original
+Keyboard Maestro, Keyboard Maestro would sometimes intercept the original
 key values, but when using Karabiner remapped keys, Keyboard Maestro would
 intercept the remapped values as expected). I have also created [a
 script](https://github.com/elliotwaite/my-setup/blob/master/scripts/karabiner/update_karabiner_config.py)
 that makes it very easy to update the Karabiner config file. I will leave this
 branch as-is since it's a good resource for Hammerspoon users, but for my
-latest settings, you can check out the
+latest settings, check out the
 [scroll-events-only](https://github.com/elliotwaite/hammerspoon-config/tree/scroll-events-only)
 branch.
 
