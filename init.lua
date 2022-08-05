@@ -124,6 +124,6 @@ end)
 -- the alert, "Config reloaded", whenever it does. I uncomment this code
 -- when debugging.
 
-hs.loadSpoon('ReloadConfiguration')
-spoon.ReloadConfiguration:start()
-hs.alert.show('Config reloaded')
+-- hs.loadSpoon('ReloadConfiguration')
+-- spoon.ReloadConfiguration:start()
+-- hs.alert.show('Config reloaded')
