@@ -19,7 +19,7 @@ end
 
 -- Remap [alt + scroll up] -> [scroll to top of page] and
 -- [alt + scroll down] -> [scroll to bottom of page].
-altScrollMultiple = 1000
+altScrollMultiple = 50
 mouseWatchers = {
   hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
     if (
@@ -124,6 +124,6 @@ end)
 -- the alert, "Config reloaded", whenever it does. I uncomment this code
 -- when debugging.
 
--- hs.loadSpoon('ReloadConfiguration')
--- spoon.ReloadConfiguration:start()
--- hs.alert.show('Config reloaded')
+hs.loadSpoon('ReloadConfiguration')
+spoon.ReloadConfiguration:start()
+hs.alert.show('Config reloaded')
