@@ -123,10 +123,9 @@ end)
 -- Statement" hotkey, we check if the last character of the line we end up on
 -- is a semicolon, and if so, we press the return key to insert a new line.
 pyCharmHotkey = hs.hotkey.new('cmd', 'return', function()
-  -- This runs our "alt+0, shift+left, ctrl+c, right" PyCharm macro, which does
-  -- the following:
-  -- 1. Action: EditorCompleteStatement (alt + 0, which was setup as an
-  --    alternative hotkey for "Complete Statement")
+  -- This runs our "Improved Complete Current Statement Macro" PyCharm macro,
+  -- which does the following:
+  -- 1. Action: EditorCompleteStatement (cmd + shift + enter)
   -- 2. Action: EditorLeftWithSelection (shift + left)
   -- 3. Action: EditorCopy (ctrl + c)
   -- 4. Action: EditorRight (right)
