@@ -19,9 +19,15 @@ In Davinci Resolve, I map:
 * `cmd + scroll` → `alt + scroll` (so that I can use `cmd + scroll` to zoom in
   an out of the timeline)
 
-In Sublime Text I map:
+In Sublime Text, I map:
 * `cmd + scroll` → `scroll` (to avoid an issue with Sublime Text where it
   ignores `cmd + scroll` events)
+
+In PyCharm, I map:
+* `cmd + enter` → `cmd + alt + 0` (which I set up as a PyCharm hotkey for
+  "Complete Current Statement"). And then the script checks if the last
+  character of the line the caret ends up on is a semicolon, and if it is, a
+  return key event is fired to insert a new line.
 
 My YouTube Video about Hammerspoon: https://youtu.be/wpVNm8Ub-1s
 

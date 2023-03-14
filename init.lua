@@ -119,6 +119,57 @@ hs.window.filter.new('Sublime Text'):subscribe(hs.window.filter.windowUnfocused,
 end)
 
 
+-- This PyCharm hotkey makes it so that after pressing the "Complete Current
+-- Statement" hotkey, we check if the last character of the line we end up on
+-- is a semicolon, and if so, we press the return key to insert a new line.
+pyCharmHotkey = hs.hotkey.new('cmd', 'return', function()
+  -- This runs our "alt+0, shift+left, ctrl+c, right" PyCharm macro, which does
+  -- the following:
+  -- 1. Action: EditorCompleteStatement (alt + 0, which was setup as an
+  --    alternative hotkey for "Complete Statement")
+  -- 2. Action: EditorLeftWithSelection (shift + left)
+  -- 3. Action: EditorCopy (ctrl + c)
+  -- 4. Action: EditorRight (right)
+  local prevPasteboardContents = hs.pasteboard.getContents()
+  hs.eventtap.keyStroke({'alt', 'cmd'}, '0', 0)
+
+  -- This delay is needed to make sure the pasteboard contents are updated.
+  -- The value was determined empirically.
+  hs.timer.doAfter(0.06, function()
+    local endOfLineChar = hs.pasteboard.getContents()
+    if endOfLineChar == ';' then
+      -- This delay is needed for some reason to make the return key work.
+      -- The value was determined empirically.
+      hs.timer.doAfter(0.06, function()
+        hs.eventtap.keyStroke({}, 'return', 0)
+      end)
+    end
+    hs.pasteboard.setContents(prevPasteboardContents)
+  end)
+end, nil, function()
+  -- This is the "repeat" function. It gets called if the hotkey is held down.
+  hs.eventtap.keyStroke({}, 'return', 0)
+end)
+
+pyCharmWindowFilter = hs.window.filter.new('PyCharm')
+
+pyCharmWindowFilter:subscribe(hs.window.filter.windowFocused, function()
+  pyCharmHotkey:enable()
+end)
+
+pyCharmWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
+  -- For some reason this function is sometimes called even when the PyCharm
+  -- window is still focused, so we add this extra check.
+  if not hs.window.focusedWindow() or hs.window.focusedWindow():application():name() ~= 'PyCharm' then
+    pyCharmHotkey:disable()
+  end
+end)
+
+if hs.window.focusedWindow() and hs.window.focusedWindow():application():name() == 'PyCharm' then
+  pyCharmHotkey:enable()
+end
+
+
 -- The below code automatically reloads this hammer configuration file
 -- whenever a file in the ~/.hammerspoon directory is changed, and shows
 -- the alert, "Config reloaded", whenever it does. I uncomment this code
