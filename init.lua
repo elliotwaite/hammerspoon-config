@@ -119,6 +119,38 @@ hs.window.filter.new('Sublime Text'):subscribe(hs.window.filter.windowUnfocused,
 end)
 
 
+-- When the mouse is moved to the bottom right corner of the screen, disable
+-- Bluetooth and put the display to sleep. Then when returning from sleep,
+-- re-enable Bluetooth.
+--
+-- This requires installing blueutil: brew install blueutil
+--
+-- Run `which blueutil` to find out where blueutil was installed, and update
+-- the `blueutilPath` variable below if needed.
+blueutilPath = '/usr/local/bin/blueutil'
+isDisplaySleeping = false
+
+hotCornerWatcher = hs.eventtap.new({hs.eventtap.event.types.mouseMoved}, function(event)
+  if (
+    event:location().x > hs.screen.mainScreen():frame().w - 1 and
+    event:location().y > hs.screen.mainScreen():frame().h - 1
+  ) then
+    if not isDisplaySleeping then
+      hs.execute(blueutilPath .. ' -p 0')
+      hs.execute('pmset displaysleepnow')
+      isDisplaySleeping = true
+    end
+  else
+    if isDisplaySleeping then
+      hs.execute(blueutilPath .. ' -p 1')
+      isDisplaySleeping = false
+    end
+  end
+end)
+
+hotCornerWatcher:start()
+
+
 -- -- This PyCharm hotkey makes it so that after pressing the "Complete Current
 -- -- Statement" hotkey, we check if the last character of the line we end up on
 -- -- is a semicolon, and if so, we press the return key to insert a new line.
