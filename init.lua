@@ -119,6 +119,43 @@ hs.window.filter.new('Sublime Text'):subscribe(hs.window.filter.windowUnfocused,
 end)
 
 
+-- In Cursor, remap [shift + scroll] -> [scroll] when the cursor is with over
+-- the top tabs of the IDE (this is done using the cursors Y offset within the
+-- window, so this remapping could also occur if the mouse is over anything
+-- else that is also in that range).
+--
+-- I use this because in VSCode, when you scroll while the mouse is over the
+-- top tabs, it will scroll those tabs horizontally, however, I have a habit of
+-- holding down shift while scrolling whenver I want to scroll something
+-- horizontally, but in VSCode, if you also hold shift while scrolling the
+-- tabs, it will also change which tab is currently focused, which isn't what I
+-- want, so I use this code to override that behavior by disallowing the shift
+-- key to be pressed when scrolling if the vertical position of the mouse within
+-- the range where the IDE's top tabs are.
+cursorResolveScrollWatcher = hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
+  if event:getFlags():containExactly({'shift'}) then
+    mouseYOffsetFromTopOfWindow = hs.mouse.getAbsolutePosition().y - hs.window.focusedWindow():topLeft().y
+    if 35 <= mouseYOffsetFromTopOfWindow and mouseYOffsetFromTopOfWindow <= 70 then
+      print('yes', mouseYOffsetFromTopOfWindow)
+      event:setFlags({shift = false})
+      event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
+    else
+      print('no', mouseYOffsetFromTopOfWindow)
+    end
+  end
+end)
+
+cursorWindowFilter = hs.window.filter.new('Cursor')
+
+cursorWindowFilter:subscribe(hs.window.filter.windowFocused, function()
+  cursorResolveScrollWatcher:start()
+end)
+
+cursorWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
+  cursorResolveScrollWatcher:stop()
+end)
+
+
 -- When the mouse is moved to the bottom right corner of the screen, disable
 -- Bluetooth and put the display to sleep. Then when returning from sleep,
 -- re-enable Bluetooth.
