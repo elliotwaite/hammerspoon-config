@@ -132,15 +132,23 @@ end)
 -- want, so I use this code to override that behavior by disallowing the shift
 -- key to be pressed when scrolling if the vertical position of the mouse within
 -- the range where the IDE's top tabs are.
-cursorResolveScrollWatcher = hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
+cursorTabScrollWatcher = hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
   if event:getFlags():containExactly({'shift'}) then
     mouseYOffsetFromTopOfWindow = hs.mouse.getAbsolutePosition().y - hs.window.focusedWindow():topLeft().y
     if 35 <= mouseYOffsetFromTopOfWindow and mouseYOffsetFromTopOfWindow <= 70 then
-      print('yes', mouseYOffsetFromTopOfWindow)
       event:setFlags({shift = false})
       event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
-    else
-      print('no', mouseYOffsetFromTopOfWindow)
+    end
+  end
+end)
+
+-- In Cursor, shift click a tab to close it.
+cursorTabClickWatcher = hs.eventtap.new({hs.eventtap.event.types.leftMouseDown}, function(event)
+  if event:getFlags():containExactly({'shift'}) then
+    mouseYOffsetFromTopOfWindow = hs.mouse.getAbsolutePosition().y - hs.window.focusedWindow():topLeft().y
+    if 35 <= mouseYOffsetFromTopOfWindow and mouseYOffsetFromTopOfWindow <= 70 then
+      hs.eventtap.leftClick(hs.mouse.absolutePosition())
+      hs.eventtap.keyStroke({'cmd'}, 'w', 0)
     end
   end
 end)
@@ -148,11 +156,13 @@ end)
 cursorWindowFilter = hs.window.filter.new('Cursor')
 
 cursorWindowFilter:subscribe(hs.window.filter.windowFocused, function()
-  cursorResolveScrollWatcher:start()
+  cursorTabScrollWatcher:start()
+  cursorTabClickWatcher:start()
 end)
 
 cursorWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
-  cursorResolveScrollWatcher:stop()
+  cursorTabScrollWatcher:stop()
+  cursorTabClickWatcher:stop()
 end)
 
 
