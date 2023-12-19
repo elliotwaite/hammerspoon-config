@@ -166,6 +166,54 @@ cursorWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
 end)
 
 
+-- Map [left cmd + left alt] -> [mouse button 3].
+leftCmdIsPressed = false
+leftAltIsPressed = false
+mouseButton3IsPressed = false
+leftCmdKeyCode = 55
+leftAltKeyCode = 58
+modKeyWatcher = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, function(event)
+  local keyCode = event:getKeyCode()
+
+  if keyCode == leftCmdKeyCode then
+    if event:getFlags()['cmd'] then
+      -- If we reach this branch, we know that the left cmd key was toggled and
+      -- that at least one cmd key is down, but we don't know if it was a
+      -- key-up or key-down event, and we don't know which cmd key is currently
+      -- down, so all we can do is toggle the state of `leftCmdIsPressed` with
+      -- the hope that it was previously in the correct state.
+      leftCmdIsPressed = not leftCmdIsPressed
+    else
+      -- If no cmd keys are pressed, we know that this was a left cmd key-up
+      -- event, so we can safely set `leftCmdIsPressed` to false. This will
+      -- also correct the `leftCmdIsPressed` value in the case that is starts
+      -- out in the incorrect state, which can happen if the left cmd key is
+      -- pressed when this script is initialized.
+      leftCmdIsPressed = false
+    end
+  elseif keyCode == leftAltKeyCode then
+    -- Here we do the same thing as above, but for the left alt key.
+    if event:getFlags()['alt'] then
+      leftAltIsPressed = not leftAltIsPressed
+    else
+      leftAltIsPressed = false
+    end
+  end
+
+  if leftCmdIsPressed and leftAltIsPressed then
+    if not mouseButton3IsPressed then
+      hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseDown, hs.mouse.getAbsolutePosition()):post()
+      mouseButton3IsPressed = true
+    end
+  else
+    if mouseButton3IsPressed then
+      hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseUp, hs.mouse.getAbsolutePosition()):post()
+      mouseButton3IsPressed = false
+    end
+  end
+end):start()
+
+
 -- -- When the mouse is moved to the bottom right corner of the screen, disable
 -- -- Bluetooth and put the display to sleep. Then when returning from sleep,
 -- -- re-enable Bluetooth.
