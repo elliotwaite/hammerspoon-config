@@ -4,7 +4,6 @@ function p(x)
   print(inspect(x))
 end
 
-
 -- The name of my external mouse.
 EXTERNAL_MOUSE_NAME = 'Evoluent VerticalMouse C'
 
@@ -21,17 +20,17 @@ end
 -- [alt + scroll down] -> [scroll to bottom of page].
 altScrollMultiple = 50
 mouseWatchers = {
-  hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
+  hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
     if (
-      event:getFlags():containExactly({'alt'}) and
-      -- Any time I process or create a scroll event, I set its
-      -- eventSourceUserData property to 1 so that I can check for that
-      -- property later to make sure I don't process that scroll event
-      -- twice. So if eventSourceUserData is 0 (the default value), that
-      -- means this is a new scroll event.
-      event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
-    ) then
-      event:setFlags({alt = false})
+          event:getFlags():containExactly({ 'alt' }) and
+          -- Any time I process or create a scroll event, I set its
+          -- eventSourceUserData property to 1 so that I can check for that
+          -- property later to make sure I don't process that scroll event
+          -- twice. So if eventSourceUserData is 0 (the default value), that
+          -- means this is a new scroll event.
+          event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
+        ) then
+      event:setFlags({ alt = false })
       event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
       event:setProperty(
         hs.eventtap.event.properties.scrollWheelEventDeltaAxis1,
@@ -78,9 +77,9 @@ end):start()
 
 
 -- In Davinci Resolve, remap [cmd + scroll] -> [alt + scroll].
-davinciResolveScrollWatcher = hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
-  if event:getFlags():containExactly({'cmd'}) then
-    event:setFlags({alt = true})
+davinciResolveScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
+  if event:getFlags():containExactly({ 'cmd' }) then
+    event:setFlags({ alt = true })
     event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
   end
 end)
@@ -103,9 +102,9 @@ end)
 
 -- In Sublime Text, remap [cmd + scroll] -> [scroll] (this avoids an issue in
 -- Sublime Text where it ignores [cmd + scroll] events).
-sublimeTextScrollWatcher = hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
-  if event:getFlags():containExactly({'cmd'}) then
-    event:setFlags({cmd = false})
+sublimeTextScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
+  if event:getFlags():containExactly({ 'cmd' }) then
+    event:setFlags({ cmd = false })
     event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
   end
 end)
@@ -132,23 +131,23 @@ end)
 -- want, so I use this code to override that behavior by disallowing the shift
 -- key to be pressed when scrolling if the vertical position of the mouse within
 -- the range where the IDE's top tabs are.
-cursorTabScrollWatcher = hs.eventtap.new({hs.eventtap.event.types.scrollWheel}, function(event)
-  if event:getFlags():containExactly({'shift'}) then
+cursorTabScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
+  if event:getFlags():containExactly({ 'shift' }) then
     mouseYOffsetFromTopOfWindow = hs.mouse.getAbsolutePosition().y - hs.window.focusedWindow():topLeft().y
     if 35 <= mouseYOffsetFromTopOfWindow and mouseYOffsetFromTopOfWindow <= 70 then
-      event:setFlags({shift = false})
+      event:setFlags({ shift = false })
       event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
     end
   end
 end)
 
 -- In Cursor, shift click a tab to close it.
-cursorTabClickWatcher = hs.eventtap.new({hs.eventtap.event.types.leftMouseDown}, function(event)
-  if event:getFlags():containExactly({'shift'}) then
+cursorTabClickWatcher = hs.eventtap.new({ hs.eventtap.event.types.leftMouseDown }, function(event)
+  if event:getFlags():containExactly({ 'shift' }) then
     mouseYOffsetFromTopOfWindow = hs.mouse.getAbsolutePosition().y - hs.window.focusedWindow():topLeft().y
     if 35 <= mouseYOffsetFromTopOfWindow and mouseYOffsetFromTopOfWindow <= 70 then
       hs.eventtap.leftClick(hs.mouse.absolutePosition())
-      hs.eventtap.keyStroke({'cmd'}, 'w', 0)
+      hs.eventtap.keyStroke({ 'cmd' }, 'w', 0)
     end
   end
 end)
@@ -166,16 +165,14 @@ cursorWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
 end)
 
 
--- Map [left cmd + left alt] -> [mouse button 3].
+-- Map [left cmd + esc] -> [mouse button 3].
 leftCmdIsPressed = false
-leftAltIsPressed = false
 mouseButton3IsPressed = false
 leftCmdKeyCode = 55
-leftAltKeyCode = 58
-modKeyWatcher = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, function(event)
-  local keyCode = event:getKeyCode()
+escKeyCode = 53
 
-  if keyCode == leftCmdKeyCode then
+leftCmdWatcher = hs.eventtap.new({ hs.eventtap.event.types.flagsChanged }, function(event)
+  if event:getKeyCode() == leftCmdKeyCode then
     if event:getFlags()['cmd'] then
       -- If we reach this branch, we know that the left cmd key was toggled and
       -- that at least one cmd key is down, but we don't know if it was a
@@ -191,24 +188,30 @@ modKeyWatcher = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, function
       -- pressed when this script is initialized.
       leftCmdIsPressed = false
     end
-  elseif keyCode == leftAltKeyCode then
-    -- Here we do the same thing as above, but for the left alt key.
-    if event:getFlags()['alt'] then
-      leftAltIsPressed = not leftAltIsPressed
-    else
-      leftAltIsPressed = false
-    end
   end
+end):start()
 
-  if leftCmdIsPressed and leftAltIsPressed then
-    if not mouseButton3IsPressed then
-      hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseDown, hs.mouse.getAbsolutePosition()):post()
-      mouseButton3IsPressed = true
-    end
-  else
-    if mouseButton3IsPressed then
-      hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseUp, hs.mouse.getAbsolutePosition()):post()
-      mouseButton3IsPressed = false
+escKeyWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types.keyUp }, function(event)
+  if event:getKeyCode() == escKeyCode then
+    if event:getType() == hs.eventtap.event.types.keyDown then
+      if leftCmdIsPressed then
+        if event:getProperty(hs.eventtap.event.properties.keyboardEventAutorepeat) == 0 and not mouseButton3IsPressed then
+          -- This is the initial key-down event (not a key-repeat event), and
+          -- the mouse button 3 is not currently pressed.
+          hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseDown, hs.mouse.absolutePosition()):post()
+          mouseButton3IsPressed = true
+        end
+
+        -- Prevent the esc key from being sent to the frontmost app, regardless
+        -- of if it is the initial key-down event or a key-repeat event.
+        return true
+      end
+    elseif event:getType() == hs.eventtap.event.types.keyUp then
+      if mouseButton3IsPressed then
+        hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseUp, hs.mouse.absolutePosition()):post()
+        mouseButton3IsPressed = false
+        return true
+      end
     end
   end
 end):start()
