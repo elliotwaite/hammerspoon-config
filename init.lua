@@ -22,14 +22,13 @@ altScrollMultiple = 50
 mouseWatchers = {
   hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
     if (
-          event:getFlags():containExactly({ 'alt' }) and
-          -- Any time I process or create a scroll event, I set its
-          -- eventSourceUserData property to 1 so that I can check for that
-          -- property later to make sure I don't process that scroll event
-          -- twice. So if eventSourceUserData is 0 (the default value), that
-          -- means this is a new scroll event.
-          event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
-        ) then
+      event:getFlags():containExactly({ 'alt' })
+      -- Whenever we process or create a scroll event in this config, we set
+      -- its eventSourceUserData property to 1 (overriding its default value of
+      -- 0) so that we can check for that property in other scroll event
+      -- handlers to make sure we don't process a scroll event twice.
+      and event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
+    ) then
       event:setFlags({ alt = false })
       event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
       event:setProperty(
@@ -78,7 +77,14 @@ end):start()
 
 -- In Davinci Resolve, remap [cmd + scroll] -> [alt + scroll].
 davinciResolveScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
-  if event:getFlags():containExactly({ 'cmd' }) then
+  if (
+    event:getFlags():containExactly({ 'cmd' }) and
+    -- Whenever we process or create a scroll event in this config, we set its
+    -- eventSourceUserData property to 1 (overriding its default value of 0) so
+    -- that we can check for that property in other scroll event handlers to
+    -- make sure we don't process a scroll event twice.
+    event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
+  ) then
     event:setFlags({ alt = true })
     event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
   end
@@ -103,7 +109,14 @@ end)
 -- In Sublime Text, remap [cmd + scroll] -> [scroll] (this avoids an issue in
 -- Sublime Text where it ignores [cmd + scroll] events).
 sublimeTextScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
-  if event:getFlags():containExactly({ 'cmd' }) then
+  if (
+    event:getFlags():containExactly({ 'cmd' })
+    -- Whenever we process or create a scroll event in this config, we set its
+    -- eventSourceUserData property to 1 (overriding its default value of 0) so
+    -- that we can check for that property in other scroll event handlers to
+    -- make sure we don't process a scroll event twice.
+    and event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
+  ) then
     event:setFlags({ cmd = false })
     event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
   end
@@ -118,23 +131,36 @@ hs.window.filter.new('Sublime Text'):subscribe(hs.window.filter.windowUnfocused,
 end)
 
 
--- In Cursor, remap [shift + scroll] -> [scroll] when the cursor is with over
--- the top tabs of the IDE (this is done using the cursors Y offset within the
+-- In Cursor, remap [shift + scroll] -> [scroll] when the cursor is over the
+-- top tabs of the IDE (this is done using the cursors Y offset within the
 -- window, so this remapping could also occur if the mouse is over anything
 -- else that is also in that range).
 --
 -- I use this because in VSCode, when you scroll while the mouse is over the
 -- top tabs, it will scroll those tabs horizontally, however, I have a habit of
--- holding down shift while scrolling whenver I want to scroll something
+-- holding down shift while scrolling whenever I want to scroll something
 -- horizontally, but in VSCode, if you also hold shift while scrolling the
 -- tabs, it will also change which tab is currently focused, which isn't what I
 -- want, so I use this code to override that behavior by disallowing the shift
--- key to be pressed when scrolling if the vertical position of the mouse within
--- the range where the IDE's top tabs are.
+-- key to be pressed when scrolling if the Cursor app is focused and vertical
+-- position of the mouse is within the range where the IDE's top tabs are.
+CURSOR_TAB_TOP_Y_OFFSET_FROM_TOP_OF_WINDOW = 35
+CURSOR_TAB_BOTTOM_Y_OFFSET_FROM_TOP_OF_WINDOW = 70
+
 cursorTabScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
-  if event:getFlags():containExactly({ 'shift' }) then
+  if (
+    event:getFlags():containExactly({ 'shift' }) and
+    -- Whenever we process or create a scroll event in this config, we set its
+    -- eventSourceUserData property to 1 (overriding its default value of 0) so
+    -- that we can check for that property in other scroll event handlers to
+    -- make sure we don't process a scroll event twice.
+    event:getProperty(hs.eventtap.event.properties.eventSourceUserData) == 0
+  )  then
     mouseYOffsetFromTopOfWindow = hs.mouse.getAbsolutePosition().y - hs.window.focusedWindow():topLeft().y
-    if 35 <= mouseYOffsetFromTopOfWindow and mouseYOffsetFromTopOfWindow <= 70 then
+    if (
+      CURSOR_TAB_TOP_Y_OFFSET_FROM_TOP_OF_WINDOW <= mouseYOffsetFromTopOfWindow
+      and mouseYOffsetFromTopOfWindow <= CURSOR_TAB_BOTTOM_Y_OFFSET_FROM_TOP_OF_WINDOW
+    ) then
       event:setFlags({ shift = false })
       event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
     end
@@ -165,7 +191,9 @@ cursorWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
 end)
 
 
--- Map [left cmd + esc] -> [mouse button 3].
+-- Map [left cmd + esc] -> [mouse button 3]. I use this shortcut for
+-- multi-cursor editing in Cursor, however, I remapped my caps lock key to esc,
+-- so for me this ends up being [left cmd + caps lock] -> [mouse button 3].
 leftCmdIsPressed = false
 mouseButton3IsPressed = false
 leftCmdKeyCode = 55
