@@ -130,24 +130,25 @@ hs.window.filter.new('Sublime Text'):subscribe(hs.window.filter.windowUnfocused,
   sublimeTextScrollWatcher:stop()
 end)
 
-
--- In Cursor, remap [shift + scroll] -> [scroll] when the cursor is over the
--- top tabs of the IDE (this is done using the cursors Y offset within the
--- window, so this remapping could also occur if the mouse is over anything
--- else that is also in that range).
+-- Note: These settings apply to VS Code, and VS Code Insiders, and Cursor.
 --
--- I use this because in VSCode, when you scroll while the mouse is over the
+-- Remap [shift + scroll] -> [scroll] when the mouse cursor is over the top tabs
+-- of the IDE (this is done using the cursor's Y offset within the window, so
+-- this remapping could also occur if the mouse is over anything else that is
+-- also in that range).
+--
+-- I use this because in VS Code, when you scroll while the mouse is over the
 -- top tabs, it will scroll those tabs horizontally, however, I have a habit of
 -- holding down shift while scrolling whenever I want to scroll something
--- horizontally, but in VSCode, if you also hold shift while scrolling the
+-- horizontally, but in VS Code, if you also hold shift while scrolling the
 -- tabs, it will also change which tab is currently focused, which isn't what I
 -- want, so I use this code to override that behavior by disallowing the shift
--- key to be pressed when scrolling if the Cursor app is focused and vertical
+-- key to be pressed when scrolling if the app is focused and the vertical
 -- position of the mouse is within the range where the IDE's top tabs are.
-CURSOR_TAB_TOP_Y_OFFSET_FROM_TOP_OF_WINDOW = 35
-CURSOR_TAB_BOTTOM_Y_OFFSET_FROM_TOP_OF_WINDOW = 70
+VSCODE_TAB_TOP_Y_OFFSET_FROM_TOP_OF_WINDOW = 35
+VSCODE_TAB_BOTTOM_Y_OFFSET_FROM_TOP_OF_WINDOW = 70
 
-cursorTabScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
+vscodeTabScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }, function(event)
   if (
     event:getFlags():containExactly({ 'shift' }) and
     -- Whenever we process or create a scroll event in this config, we set its
@@ -158,8 +159,8 @@ cursorTabScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }
   )  then
     mouseYOffsetFromTopOfWindow = hs.mouse.getAbsolutePosition().y - hs.window.focusedWindow():topLeft().y
     if (
-      CURSOR_TAB_TOP_Y_OFFSET_FROM_TOP_OF_WINDOW <= mouseYOffsetFromTopOfWindow
-      and mouseYOffsetFromTopOfWindow <= CURSOR_TAB_BOTTOM_Y_OFFSET_FROM_TOP_OF_WINDOW
+      VSCODE_TAB_TOP_Y_OFFSET_FROM_TOP_OF_WINDOW <= mouseYOffsetFromTopOfWindow
+      and mouseYOffsetFromTopOfWindow <= VSCODE_TAB_BOTTOM_Y_OFFSET_FROM_TOP_OF_WINDOW
     ) then
       event:setFlags({ shift = false })
       event:setProperty(hs.eventtap.event.properties.eventSourceUserData, 1)
@@ -167,8 +168,8 @@ cursorTabScrollWatcher = hs.eventtap.new({ hs.eventtap.event.types.scrollWheel }
   end
 end)
 
--- In Cursor, shift click a tab to close it.
-cursorTabClickWatcher = hs.eventtap.new({ hs.eventtap.event.types.leftMouseDown }, function(event)
+-- In VS Code, shift click a tab to close it.
+vscodeTabClickWatcher = hs.eventtap.new({ hs.eventtap.event.types.leftMouseDown }, function(event)
   if event:getFlags():containExactly({ 'shift' }) then
     mouseYOffsetFromTopOfWindow = hs.mouse.getAbsolutePosition().y - hs.window.focusedWindow():topLeft().y
     if 35 <= mouseYOffsetFromTopOfWindow and mouseYOffsetFromTopOfWindow <= 70 then
@@ -178,21 +179,21 @@ cursorTabClickWatcher = hs.eventtap.new({ hs.eventtap.event.types.leftMouseDown 
   end
 end)
 
-cursorWindowFilter = hs.window.filter.new('Cursor')
+vscodeWindowFilter = hs.window.filter.new({ 'Code', 'Code - Insiders', 'Cursor' })
 
-cursorWindowFilter:subscribe(hs.window.filter.windowFocused, function()
-  cursorTabScrollWatcher:start()
-  cursorTabClickWatcher:start()
+vscodeWindowFilter:subscribe(hs.window.filter.windowFocused, function()
+  vscodeTabScrollWatcher:start()
+  vscodeTabClickWatcher:start()
 end)
 
-cursorWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
-  cursorTabScrollWatcher:stop()
-  cursorTabClickWatcher:stop()
+vscodeWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
+  vscodeTabScrollWatcher:stop()
+  vscodeTabClickWatcher:stop()
 end)
 
 
 -- Map [left cmd + esc] -> [mouse button 3]. I use this shortcut for
--- multi-cursor editing in Cursor, however, I remapped my caps lock key to esc,
+-- multi-cursor editing in VS Code, however, I remapped my caps lock key to esc,
 -- so for me this ends up being [left cmd + caps lock] -> [mouse button 3].
 leftCmdIsPressed = false
 mouseButton3IsPressed = false
