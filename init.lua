@@ -130,7 +130,8 @@ hs.window.filter.new('Sublime Text'):subscribe(hs.window.filter.windowUnfocused,
   sublimeTextScrollWatcher:stop()
 end)
 
--- Note: These settings apply to VS Code, and VS Code Insiders, and Cursor.
+-- Note: These settings apply to VS Code, and VS Code Insiders, Cursor, and
+-- Windsurf.
 --
 -- Remap [shift + scroll] -> [scroll] when the mouse cursor is over the top tabs
 -- of the IDE (this is done using the cursor's Y offset within the window, so
@@ -179,7 +180,7 @@ vscodeTabClickWatcher = hs.eventtap.new({ hs.eventtap.event.types.leftMouseDown 
   end
 end)
 
-vscodeWindowFilter = hs.window.filter.new({ 'Code', 'Code - Insiders', 'Cursor' })
+vscodeWindowFilter = hs.window.filter.new({ 'Code', 'Code - Insiders', 'Cursor', 'Windsurf' })
 
 vscodeWindowFilter:subscribe(hs.window.filter.windowFocused, function()
   vscodeTabScrollWatcher:start()
