@@ -193,25 +193,21 @@ vscodeWindowFilter:subscribe(hs.window.filter.windowUnfocused, function()
 end)
 
 
--- Map [left cmd + esc] -> [mouse button 3]. I use this shortcut for
--- multi-cursor editing in VS Code, however, I remapped my caps lock key to esc,
--- so for me this ends up being [left cmd + caps lock] -> [mouse button 3].
-leftCmdIsPressed = false
-mouseButton3IsPressed = false
+-- Map pointer 1 (left mouse button) to pointer 3 (mouse button 3) when
+-- leftCmdIsPressed and escIsPressed.
 leftCmdKeyCode = 55
-escKeyCode = 53
-
+leftCmdIsPressed = false
 leftCmdWatcher = hs.eventtap.new({ hs.eventtap.event.types.flagsChanged }, function(event)
   if event:getKeyCode() == leftCmdKeyCode then
     if event:getFlags()['cmd'] then
       -- If we reach this branch, we know that the left cmd key was toggled and
-      -- that at least one cmd key is down, but we don't know if it was a
-      -- key-up or key-down event, and we don't know which cmd key is currently
-      -- down, so all we can do is toggle the state of `leftCmdIsPressed` with
+      -- that at least one cmd key is down, but we don't know if it was a left
+      -- cmd key-down, or the left cmd key-up while the right cmd key is still
+      -- down, so we optimistically toggle the state of `leftCmdIsPressed` with
       -- the hope that it was previously in the correct state.
       leftCmdIsPressed = not leftCmdIsPressed
     else
-      -- If no cmd keys are pressed, we know that this was a left cmd key-up
+      -- No cmd keys are pressed so we know that this was a left cmd key-up
       -- event, so we can safely set `leftCmdIsPressed` to false. This will
       -- also correct the `leftCmdIsPressed` value in the case that is starts
       -- out in the incorrect state, which can happen if the left cmd key is
@@ -221,27 +217,37 @@ leftCmdWatcher = hs.eventtap.new({ hs.eventtap.event.types.flagsChanged }, funct
   end
 end):start()
 
-escKeyWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types.keyUp }, function(event)
+escKeyCode = 53
+escIsPressed = false
+escWatcher = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types.keyUp }, function(event)
   if event:getKeyCode() == escKeyCode then
     if event:getType() == hs.eventtap.event.types.keyDown then
+      escIsPressed = true
+      -- Prevent the esc key from being sent to the front-most app if left cmd
+      -- is pressed, regardless of if it is the initial key-down event or a
+      -- key-repeat event.
       if leftCmdIsPressed then
-        if event:getProperty(hs.eventtap.event.properties.keyboardEventAutorepeat) == 0 and not mouseButton3IsPressed then
-          -- This is the initial key-down event (not a key-repeat event), and
-          -- the mouse button 3 is not currently pressed.
-          hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseDown, hs.mouse.absolutePosition()):post()
-          mouseButton3IsPressed = true
-        end
+        return true
+      end
+    else
+      escIsPressed = false
+    end
+  end
+end):start()
 
-        -- Prevent the esc key from being sent to the frontmost app, regardless
-        -- of if it is the initial key-down event or a key-repeat event.
-        return true
-      end
-    elseif event:getType() == hs.eventtap.event.types.keyUp then
-      if mouseButton3IsPressed then
-        hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseUp, hs.mouse.absolutePosition()):post()
-        mouseButton3IsPressed = false
-        return true
-      end
+pointer1MappingActive = false
+pointer1To3Watcher = hs.eventtap.new({ hs.eventtap.event.types.leftMouseDown, hs.eventtap.event.types.leftMouseUp }, function(event)
+  if event:getType() == hs.eventtap.event.types.leftMouseDown then
+    if leftCmdIsPressed and escIsPressed then
+      pointer1MappingActive = true
+      hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseDown, hs.mouse.absolutePosition()):post()
+      return true
+    end
+  elseif event:getType() == hs.eventtap.event.types.leftMouseUp then
+    if pointer1MappingActive then
+      pointer1MappingActive = false
+      hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.otherMouseUp, hs.mouse.absolutePosition()):post()
+      return true
     end
   end
 end):start()
@@ -334,6 +340,6 @@ end):start()
 -- the alert, "Config reloaded", whenever it does. I uncomment this code
 -- when debugging.
 
--- hs.loadSpoon('ReloadConfiguration')
--- spoon.ReloadConfiguration:start()
--- hs.alert.show('Config reloaded')
+hs.loadSpoon('ReloadConfiguration')
+spoon.ReloadConfiguration:start()
+hs.alert.show('Config reloaded')
