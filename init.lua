@@ -253,6 +253,49 @@ pointer1To3Watcher = hs.eventtap.new({ hs.eventtap.event.types.leftMouseDown, hs
 end):start()
 
 
+-- After a backtick/tilde, briefly strip Cmd from Space so an accidental
+-- Cmd+Space (e.g. Raycast) does not fire while finishing a backtick + space.
+--
+-- On the Lil58, Cmd + top-left is remapped by Vial to a backtick. Physically
+-- holding Cmd through Space looks like:
+--   cmd_down, top_left, space, cmd_up
+-- but Vial emits:
+--   cmd_down, cmd_up, grave_down, grave_up, cmd_down, space_down, ...
+-- so Space still arrives with Cmd held. We arm a short window on grave key-down
+-- and clear Cmd from any Space events in that window.
+graveKeyCode = 50
+spaceKeyCode = 49
+cmdSpaceSuppressWindowSeconds = 0.4
+suppressCmdOnSpaceUntil = 0
+
+graveThenSpaceWatcher = hs.eventtap.new({
+  hs.eventtap.event.types.keyDown,
+  hs.eventtap.event.types.keyUp,
+}, function(event)
+  local keyCode = event:getKeyCode()
+
+  if keyCode == graveKeyCode and event:getType() == hs.eventtap.event.types.keyDown then
+    suppressCmdOnSpaceUntil = hs.timer.secondsSinceEpoch() + cmdSpaceSuppressWindowSeconds
+    return false
+  end
+
+  if (
+    keyCode == spaceKeyCode
+    and hs.timer.secondsSinceEpoch() < suppressCmdOnSpaceUntil
+    and event:getFlags()['cmd']
+  ) then
+    local flags = event:getFlags()
+    flags['cmd'] = false
+    event:setFlags(flags)
+    -- Only rewrite the first Space after the backtick so a later intentional
+    -- Cmd+Space still opens Raycast.
+    if event:getType() == hs.eventtap.event.types.keyUp then
+      suppressCmdOnSpaceUntil = 0
+    end
+  end
+end):start()
+
+
 -- -- When the mouse is moved to the bottom right corner of the screen, disable
 -- -- Bluetooth and put the display to sleep. Then when returning from sleep,
 -- -- re-enable Bluetooth.
