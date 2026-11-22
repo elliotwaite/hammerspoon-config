@@ -253,28 +253,36 @@ pointer1To3Watcher = hs.eventtap.new({ hs.eventtap.event.types.leftMouseDown, hs
 end):start()
 
 
--- After a backtick/tilde, briefly strip Cmd from Space so an accidental
--- Cmd+Space (e.g. Raycast) does not fire while finishing a backtick + space.
+-- After a Vial Cmd-remapped character, briefly strip Cmd from Space so an
+-- accidental Cmd+Space (e.g. Raycast) does not fire while typing that
+-- character followed by a space.
 --
--- On the Lil58, Cmd + top-left is remapped by Vial to a backtick. Physically
--- holding Cmd through Space looks like:
---   cmd_down, top_left, space, cmd_up
+-- On the Lil58, Cmd + certain keys is remapped by Vial, e.g.:
+--   Cmd + equal_sign → ` / ~
+--   Cmd + 9 → [ / {
+--   Cmd + 0 → ] / }
+-- Physically holding Cmd through Space looks like:
+--   cmd_down, remapped_key, space, cmd_up
 -- but Vial emits:
---   cmd_down, cmd_up, grave_down, grave_up, cmd_down, space_down, ...
--- so Space still arrives with Cmd held. We arm a short window on grave key-down
--- and clear Cmd from any Space events in that window.
-graveKeyCode = 50
+--   cmd_down, cmd_up, char_down, char_up, cmd_down, space_down, ...
+-- so Space still arrives with Cmd held. We arm a short window on those
+-- character key-downs and clear Cmd from any Space events in that window.
 spaceKeyCode = 49
+cmdRemappedKeyCodes = {
+  [50] = true, -- grave accent / tilde
+  [33] = true, -- open bracket / brace
+  [30] = true, -- close bracket / brace
+}
 cmdSpaceSuppressWindowSeconds = 0.4
 suppressCmdOnSpaceUntil = 0
 
-graveThenSpaceWatcher = hs.eventtap.new({
+cmdRemapThenSpaceWatcher = hs.eventtap.new({
   hs.eventtap.event.types.keyDown,
   hs.eventtap.event.types.keyUp,
 }, function(event)
   local keyCode = event:getKeyCode()
 
-  if keyCode == graveKeyCode and event:getType() == hs.eventtap.event.types.keyDown then
+  if cmdRemappedKeyCodes[keyCode] and event:getType() == hs.eventtap.event.types.keyDown then
     suppressCmdOnSpaceUntil = hs.timer.secondsSinceEpoch() + cmdSpaceSuppressWindowSeconds
     return false
   end
@@ -287,8 +295,8 @@ graveThenSpaceWatcher = hs.eventtap.new({
     local flags = event:getFlags()
     flags['cmd'] = false
     event:setFlags(flags)
-    -- Only rewrite the first Space after the backtick so a later intentional
-    -- Cmd+Space still opens Raycast.
+    -- Only rewrite the first Space after the remapped char so a later
+    -- intentional Cmd+Space still opens Raycast.
     if event:getType() == hs.eventtap.event.types.keyUp then
       suppressCmdOnSpaceUntil = 0
     end
